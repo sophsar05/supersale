@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Supersale.ph</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8272A;
+    --red-dark: #B81D1F;
+    --red-light: #FFF0F0;
+    --yellow: #FFD600;
+    --green: #0A8754;
+    --green-light: #E6F4EE;
+    --gray-0: #FFFFFF;
+    --gray-50: #F7F7F5;
+    --gray-100: #EEECEA;
+    --gray-200: #D9D7D3;
+    --gray-400: #9C9A96;
+    --gray-700: #3A3835;
+    --gray-900: #1A1917;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--red);
+    padding: 14px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--yellow); }
+  .topbar-store {
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+    text-align: right;
+  }
+  .topbar-store strong { display: block; color: white; font-size: 13px; }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--gray-100);
+    position: sticky;
+    top: 56px;
+    z-index: 99;
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 12px 4px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-400);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-tab.active {
+    color: var(--red);
+    border-bottom-color: var(--red);
+  }
+  .nav-tab .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+  /* VIEWS */
+  .view { display: none; padding-bottom: 100px; }
+  .view.active { display: block; }
+
+  /* ── DISCOUNT FEED ── */
+  .feed-header {
+    padding: 16px 20px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .feed-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .aisle-badge {
+    background: var(--yellow);
+    color: var(--gray-900);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .discount-grid {
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .deal-card {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    position: relative;
+  }
+  .deal-img {
+    width: 110px;
+    min-height: 110px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .deal-img.uploaded {
+    background-size: cover;
+    background-position: center;
+  }
+  .deal-body {
+    padding: 12px 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .deal-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+  }
+  .deal-category {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .deal-prices {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .deal-sale-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--red);
+  }
+  .deal-orig-price {
+    font-size: 13px;
+    color: var(--gray-400);
+    text-decoration: line-through;
+  }
+  .save-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: 'Syne', sans-serif;
+  }
+  .deal-time {
+    font-size: 10px;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+  .empty-feed {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-400);
+  }
+  .empty-feed .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-feed p { font-size: 14px; }
+
+  /* STICKY REQUEST BUTTON */
+  .sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    padding: 16px 20px;
+    background: linear-gradient(to top, white 70%, transparent);
+    z-index: 98;
+  }
+  .btn-request {
+    width: 100%;
+    background: var(--gray-900);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.1s, background 0.1s;
+  }
+  .btn-request:active { transform: scale(0.98); background: #333; }
+
+  /* ── REQUEST FORM ── */
+  .form-wrap { padding: 20px; }
+  .form-section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .form-subtitle { font-size: 13px; color: var(--gray-400); margin-bottom: 24px; }
+
+  .search-wrap { position: relative; margin-bottom: 16px; }
+  .search-input {
+    width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px 14px 44px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+  }
+  .search-input:focus { border-color: var(--red); }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    pointer-events: none;
+  }
+  .autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: white;
+    border: 1.5px solid var(--gray-200);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    z-index: 200;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  .autocomplete-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .autocomplete-item:hover, .autocomplete-item:active { background: var(--red-light); }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .match-highlight { color: var(--red); font-weight: 600; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+  }
+  .form-field {
+    margin-bottom: 16px;
+  }
+  .qty-row {
+    display: flex;
+    gap: 8px;
+  }
+  .qty-btn {
+    width: 44px;
+    height: 50px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    background: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.1s;
+  }
+  .qty-btn:active { background: var(--gray-100); }
+  .qty-display {
+    flex: 1;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    background: white;
+  }
+  .text-input {
+    width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+  }
+  .text-input:focus { border-color: var(--red); }
+  .phone-hint { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.1s, background 0.1s;
+  }
+  .btn-submit:active { transform: scale(0.98); background: var(--red-dark); }
+  .btn-submit:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+
+  .success-toast {
+    display: none;
+    background: var(--green);
+    color: white;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+  }
+  .success-toast.show { display: block; }
+
+  /* ── ADMIN UPLOAD ── */
+  .admin-wrap { padding: 20px; }
+  .admin-section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .admin-subtitle { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
+
+  .camera-zone {
+    border: 2px dashed var(--gray-200);
+    border-radius: var(--radius);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    background: white;
+    transition: border-color 0.15s;
+  }
+  .camera-zone:active { border-color: var(--red); background: var(--red-light); }
+  .camera-zone img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+  }
+  .camera-zone-text { text-align: center; color: var(--gray-400); }
+  .camera-zone-text .cam-icon { font-size: 36px; margin-bottom: 8px; }
+  .camera-zone-text p { font-size: 13px; }
+  #camera-input { display: none; }
+
+  .price-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .price-field { flex: 1; }
+  .price-field .form-label { margin-bottom: 6px; }
+  .price-input-wrap { position: relative; }
+  .price-input-wrap::before {
+    content: '₱';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--gray-400);
+  }
+  .price-input {
+    width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 13px 12px 13px 28px;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .price-input:focus { border-color: var(--red); }
+  .savings-preview {
+    background: var(--green-light);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .savings-preview.show { display: block; }
+
+  .btn-publish {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.1s;
+  }
+  .btn-publish:active { transform: scale(0.98); }
+
+  /* ── DASHBOARD ── */
+  .dash-wrap { padding: 20px; }
+  .dash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .demand-card {
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .demand-rank {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gray-200);
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .demand-rank.top { color: var(--red); }
+  .demand-info { flex: 1; }
+  .demand-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .demand-meta { font-size: 12px; color: var(--gray-400); }
+  .demand-count {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--red);
+    text-align: right;
+  }
+  .demand-count span { display: block; font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 10px; color: var(--gray-400); }
+  .heatbar {
+    height: 3px;
+    background: var(--gray-100);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .heatbar-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--yellow), var(--red));
+    border-radius: 2px;
+  }
+  .restock-btn {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+    font-family: 'Syne', sans-serif;
+  }
+  .restock-btn:active { opacity: 0.8; }
+  .restock-btn.done {
+    background: var(--gray-200);
+    color: var(--gray-400);
+    cursor: default;
+  }
+  .restocked-badge {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .alert-banner {
+    background: var(--red-light);
+    border: 1px solid #FFBDBD;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--red-dark);
+  }
+  .alert-banner strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    flex: 1;
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-box .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--red);
+  }
+  .stat-box .stat-label { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  /* NOTIFICATION OVERLAY */
+  .notif-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: flex-end;
+  }
+  .notif-overlay.show { display: flex; }
+  .notif-sheet {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+  .notif-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .notif-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .notif-body { font-size: 14px; color: var(--gray-700); margin-bottom: 20px; line-height: 1.5; }
+  .notif-phones {
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-bottom: 20px;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .btn-notif-send {
+    width: 100%;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 15px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .btn-notif-cancel {
+    width: 100%;
+    background: none;
+    color: var(--gray-400);
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* UTILS */
+  .section-sep {
+    height: 1px;
+    background: var(--gray-100);
+    margin: 16px 0;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--red-light);
+    color: var(--red-dark);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">Super<span>sale</span>.ph</div>
+  <div class="topbar-store" id="store-label">
+    <strong id="store-name-display">Loading store...</strong>
+    <span id="aisle-display"></span>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="switchView('feed')" id="tab-feed">
+    <span class="tab-icon">🏷️</span>Deals
+  </div>
+  <div class="nav-tab" onclick="switchView('request')" id="tab-request">
+    <span class="tab-icon">📦</span>Request
+  </div>
+  <div class="nav-tab" onclick="switchView('admin')" id="tab-admin">
+    <span class="tab-icon">📸</span>Upload
+  </div>
+  <div class="nav-tab" onclick="switchView('dashboard')" id="tab-dashboard">
+    <span class="tab-icon">📊</span>Dashboard
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 1: DISCOUNT FEED
+═══════════════════════════════════════════ -->
+<div class="view active" id="view-feed">
+  <div class="feed-header">
+    <h2>Today's Deals</h2>
+    <span class="aisle-badge" id="aisle-badge-header">All Aisles</span>
+  </div>
+  <div class="discount-grid" id="deal-list">
+    <!-- populated by JS -->
+  </div>
+  <div class="sticky-cta">
+    <button class="btn-request" onclick="switchView('request')">
+      📦 Can't find an item? Request a restock.
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 2: REQUEST FORM
+═══════════════════════════════════════════ -->
+<div class="view" id="view-request">
+  <div class="form-wrap">
+    <div class="form-section-title">Request a Restock</div>
+    <div class="form-subtitle">Can't find what you're looking for? Tell us and we'll get it fast.</div>
+
+    <div class="success-toast" id="request-success">
+      ✅ Request sent! We'll notify you when it's back in stock.
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">What item are you looking for?</label>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="product-search" placeholder="e.g. Super Q Noodles, Datu Puti..." oninput="handleSearch(this.value)" autocomplete="off">
+        <div class="autocomplete-list" id="autocomplete-list" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Quantity needed</label>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+        <div class="qty-display" id="qty-display">1</div>
+        <button class="qty-btn" onclick="adjustQty(1)">+</button>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Your phone number</label>
+      <input type="tel" class="text-input" id="phone-input" placeholder="09XXXXXXXXX" oninput="savePhone(this.value)">
+      <div class="phone-hint" id="phone-hint" style="display:none;">✓ Phone saved for future visits</div>
+    </div>
+
+    <button class="btn-submit" onclick="submitRequest()" id="submit-btn">Send Restock Request</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 3: ADMIN UPLOAD
+═══════════════════════════════════════════ -->
+<div class="view" id="view-admin">
+  <div class="admin-wrap">
+    <div class="admin-section-title">Add a Deal</div>
+    <div class="admin-subtitle">Snap a shelf tag or enter the details manually.</div>
+
+    <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleCameraPhoto(this)">
+
+    <div class="camera-zone" id="camera-zone" onclick="document.getElementById('camera-input').click()">
+      <div class="camera-zone-text" id="camera-placeholder">
+        <div class="cam-icon">📷</div>
+        <p>Tap to take a photo</p>
+        <p style="font-size:11px; margin-top:4px; color: #bbb;">or choose from gallery</p>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Product Name</label>
+      <input type="text" class="text-input" id="admin-product-name" placeholder="e.g. Lucky Me Pancit Canton">
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Category</label>
+      <input type="text" class="text-input" id="admin-category" placeholder="e.g. Noodles, Dairy, Beverages">
+    </div>
+
+    <div class="price-row">
+      <div class="price-field">
+        <label class="form-label">Sale Price</label>
+        <div class="price-input-wrap">
+          <input type="number" class="price-input" id="admin-sale-price" placeholder="00.00" oninput="updateSavingsPreview()">
+        </div>
+      </div>
+      <div class="price-field">
+        <label class="form-label">Original Price</label>
+        <div class="price-input-wrap">
+          <input type="number" class="price-input" id="admin-orig-price" placeholder="00.00" oninput="updateSavingsPreview()">
+        </div>
+      </div>
+    </div>
+
+    <div class="savings-preview" id="savings-preview"></div>
+
+    <button class="btn-publish" onclick="publishDeal()">
+      🚀 Publish to Feed
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 4: DEMAND DASHBOARD
+═══════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <div class="dash-wrap">
+    <div class="dash-title">Demand Dashboard</div>
+
+    <div class="stat-row" id="stat-row">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="alert-banner" id="hot-alert" style="display:none;">
+      <strong>🔥 High Demand Alert</strong>
+      <span id="hot-alert-text"></span>
+    </div>
+
+    <div class="pill">📊 Ranked by demand</div>
+
+    <div id="demand-list">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION SHEET -->
+<div class="notif-overlay" id="notif-overlay" onclick="closeNotifSheet(event)">
+  <div class="notif-sheet">
+    <div class="notif-handle"></div>
+    <div class="notif-title" id="notif-title">Notify Requesters</div>
+    <div class="notif-body" id="notif-body"></div>
+    <div class="notif-phones" id="notif-phones"></div>
+    <button class="btn-notif-send" onclick="sendNotifications()">📲 Send SMS Notifications</button>
+    <button class="btn-notif-cancel" onclick="closeNotifSheet()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════
+const STORE_KEY = 'supersale_store';
+const REQUESTS_KEY = 'supersale_requests';
+const DEALS_KEY = 'supersale_deals';
+
+function getState() {
+  return {
+    deals: JSON.parse(localStorage.getItem(DEALS_KEY) || '[]'),
+    requests: JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]'),
+    savedPhone: localStorage.getItem('supersale_phone') || ''
+  };
+}
+
+function saveDeals(deals) { localStorage.setItem(DEALS_KEY, JSON.stringify(deals)); }
+function saveRequests(requests) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests)); }
+
+// Parse URL params
+const urlParams = new URLSearchParams(window.location.search);
+const storeId = urlParams.get('store_id') || 'SM-IMUS-001';
+const aisleId = urlParams.get('aisle') || null;
+
+// Store names map
+const STORE_NAMES = {
+  'SM-IMUS-001': 'SM Hypermarket – Imus',
+  'SM-CAVITE-02': 'SM Savemore – Bacoor',
+  'PUREGOLD-IMUS': 'Puregold – Imus',
+  'ROBINSONS-CIV': 'Robinsons – Dasmariñas',
+};
+
+// ═══════════════════════════
+// PRODUCT DATABASE (for autocomplete + fuzzy search)
+// ═══════════════════════════
+const PRODUCT_DB = [
+  { name: 'Lucky Me Pancit Canton', category: 'Noodles', emoji: '🍜' },
+  { name: 'Lucky Me Chicken Flavor', category: 'Noodles', emoji: '🍜' },
+  { name: 'Super Q Noodles', category: 'Noodles', emoji: '🍜' },
+  { name: 'Mami King Noodles', category: 'Noodles', emoji: '🍜' },
+  { name: 'Datu Puti Vinegar', category: 'Condiments', emoji: '🍶' },
+  { name: 'Datu Puti Soy Sauce', category: 'Condiments', emoji: '🍶' },
+  { name: 'Silver Swan Soy Sauce', category: 'Condiments', emoji: '🍶' },
+  { name: 'UFC Banana Catsup', category: 'Condiments', emoji: '🍅' },
+  { name: 'Jufran Banana Sauce', category: 'Condiments', emoji: '🍅' },
+  { name: 'Century Tuna', category: 'Canned Goods', emoji: '🐟' },
+  { name: 'Argentina Corned Beef', category: 'Canned Goods', emoji: '🥩' },
+  { name: 'CDO Corned Beef', category: 'Canned Goods', emoji: '🥩' },
+  { name: 'Spam Classic', category: 'Canned Goods', emoji: '🥫' },
+  { name: 'Del Monte Pineapple Juice', category: 'Beverages', emoji: '🍹' },
+  { name: 'C2 Green Tea', category: 'Beverages', emoji: '🍵' },
+  { name: 'Cobra Energy Drink', category: 'Beverages', emoji: '⚡' },
+  { name: 'Kopiko Brown Coffee', category: 'Beverages', emoji: '☕' },
+  { name: 'Milo Chocolate Drink', category: 'Beverages', emoji: '🥤' },
+  { name: 'Bear Brand Milk', category: 'Dairy', emoji: '🥛' },
+  { name: 'Alaska Evaporated Milk', category: 'Dairy', emoji: '🥛' },
+  { name: 'Magnolia Butter', category: 'Dairy', emoji: '🧈' },
+  { name: 'Eden Cheese', category: 'Dairy', emoji: '🧀' },
+  { name: 'Quickmelt Cheese', category: 'Dairy', emoji: '🧀' },
+  { name: 'Monde Biscuits', category: 'Snacks', emoji: '🍪' },
+  { name: 'Skyflakes Crackers', category: 'Snacks', emoji: '🍘' },
+  { name: 'Piattos Chips', category: 'Snacks', emoji: '🥔' },
+  { name: 'Clover Chips', category: 'Snacks', emoji: '🥨' },
+  { name: 'Champion Detergent Powder', category: 'Laundry', emoji: '🧺' },
+  { name: 'Ariel Laundry Powder', category: 'Laundry', emoji: '🧺' },
+  { name: 'Tide Detergent', category: 'Laundry', emoji: '🧺' },
+  { name: 'Safeguard Soap', category: 'Personal Care', emoji: '🧼' },
+  { name: 'Head & Shoulders Shampoo', category: 'Personal Care', emoji: '🧴' },
+  { name: 'Palmolive Shampoo', category: 'Personal Care', emoji: '🧴' },
+  { name: 'NutriAsia Cooking Oil', category: 'Cooking', emoji: '🫙' },
+  { name: 'Minola Coconut Oil', category: 'Cooking', emoji: '🥥' },
+  { name: 'White King Rice', category: 'Grains', emoji: '🌾' },
+  { name: 'Dinorado Rice 5kg', category: 'Grains', emoji: '🌾' },
+];
+
+// ═══════════════════════════
+// SEED DATA
+// ═══════════════════════════
+function seedDeals() {
+  const existing = JSON.parse(localStorage.getItem(DEALS_KEY) || '[]');
+  if (existing.length > 0) return;
+  const seed = [
+    { id: 1, name: 'Lucky Me Pancit Canton', category: 'Noodles', emoji: '🍜', salePrice: 12, origPrice: 16, storeId: storeId, timestamp: Date.now() - 3600000, img: null },
+    { id: 2, name: 'Century Tuna (Flakes)', category: 'Canned Goods', emoji: '🐟', salePrice: 38, origPrice: 52, storeId: storeId, timestamp: Date.now() - 7200000, img: null },
+    { id: 3, name: 'Milo 3-in-1 Sachet Pack', category: 'Beverages', emoji: '🥤', salePrice: 89, origPrice: 120, storeId: storeId, timestamp: Date.now() - 1800000, img: null },
+    { id: 4, name: 'Bear Brand Milk 300g', category: 'Dairy', emoji: '🥛', salePrice: 155, origPrice: 185, storeId: storeId, timestamp: Date.now() - 5400000, img: null },
+    { id: 5, name: 'Ariel Laundry Powder 1kg', category: 'Laundry', emoji: '🧺', salePrice: 198, origPrice: 240, storeId: storeId, timestamp: Date.now() - 900000, img: null },
+  ];
+  saveDeals(seed);
+}
+
+function seedRequests() {
+  const existing = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '[]');
+  if (existing.length > 0) return;
+  const seed = [
+    { id: 1, product: 'Spam Classic', qty: 2, phone: '09171234567', storeId, timestamp: Date.now() - 86400000, restocked: false },
+    { id: 2, product: 'Spam Classic', qty: 1, phone: '09281234567', storeId, timestamp: Date.now() - 72000000, restocked: false },
+    { id: 3, product: 'Spam Classic', qty: 3, phone: '09391234567', storeId, timestamp: Date.now() - 60000000, restocked: false },
+    { id: 4, product: 'Skyflakes Crackers', qty: 2, phone: '09174567890', storeId, timestamp: Date.now() - 50000000, restocked: false },
+    { id: 5, product: 'Skyflakes Crackers', qty: 1, phone: '09284567890', storeId, timestamp: Date.now() - 40000000, restocked: false },
+    { id: 6, product: 'Datu Puti Vinegar', qty: 1, phone: '09177654321', storeId, timestamp: Date.now() - 30000000, restocked: false },
+    { id: 7, product: 'Kopiko Brown Coffee', qty: 2, phone: '09287654321', storeId, timestamp: Date.now() - 20000000, restocked: false },
+  ];
+  saveRequests(seed);
+}
+
+// ═══════════════════════════
+// INIT
+// ═══════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  seedDeals();
+  seedRequests();
+
+  // Store display
+  const storeName = STORE_NAMES[storeId] || storeId;
+  document.getElementById('store-name-display').textContent = storeName;
+  if (aisleId) {
+    document.getElementById('aisle-display').textContent = `Aisle ${aisleId}`;
+    document.getElementById('aisle-badge-header').textContent = `Aisle ${aisleId}`;
+  }
+
+  // Pre-fill phone
+  const savedPhone = localStorage.getItem('supersale_phone') || '';
+  if (savedPhone) {
+    document.getElementById('phone-input').value = savedPhone;
+    document.getElementById('phone-hint').style.display = 'block';
+  }
+
+  renderFeed();
+  renderDashboard();
+});
+
+// ═══════════════════════════
+// NAVIGATION
+// ═══════════════════════════
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'feed') renderFeed();
+}
+
+// ═══════════════════════════
+// FEED RENDERING
+// ═══════════════════════════
+function renderFeed() {
+  const { deals } = getState();
+  const storeDeals = deals.filter(d => d.storeId === storeId);
+  const list = document.getElementById('deal-list');
+
+  if (storeDeals.length === 0) {
+    list.innerHTML = `<div class="empty-feed"><div class="empty-icon">🏷️</div><p>No deals yet for this store.<br>Staff can upload deals using the Upload tab.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = storeDeals.sort((a, b) => b.timestamp - a.timestamp).map(deal => {
+    const save = deal.origPrice - deal.salePrice;
+    const pct = Math.round((save / deal.origPrice) * 100);
+    const timeAgo = getTimeAgo(deal.timestamp);
+    const imgStyle = deal.img ? `background-image: url('${deal.img}');` : '';
+    const imgClass = deal.img ? 'deal-img uploaded' : 'deal-img';
+    const imgContent = deal.img ? '' : `<span>${deal.emoji || '🛒'}</span>`;
+
+    return `
+      <div class="deal-card">
+        <div class="${imgClass}" style="${imgStyle}">${imgContent}</div>
+        <div class="deal-body">
+          <div>
+            <div class="deal-name">${deal.name}</div>
+            <div class="deal-category">${deal.category}</div>
+          </div>
+          <div>
+            <div class="deal-prices">
+              <span class="deal-sale-price">₱${deal.salePrice}</span>
+              <span class="deal-orig-price">₱${deal.origPrice}</span>
+            </div>
+            <div class="deal-time">${timeAgo}</div>
+          </div>
+        </div>
+        <div class="save-badge">Save ₱${save} (${pct}%)</div>
+      </div>`;
+  }).join('');
+}
+
+function getTimeAgo(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+// ═══════════════════════════
+// FUZZY SEARCH
+// ═══════════════════════════
+let selectedProduct = '';
+let qty = 1;
+
+function fuzzyMatch(query, str) {
+  query = query.toLowerCase().replace(/\s+/g, '');
+  str = str.toLowerCase();
+  // Score: exact contains > word starts > fuzzy char match
+  if (str.includes(query)) return 100;
+  const words = str.split(' ');
+  if (words.some(w => w.startsWith(query))) return 80;
+  // Fuzzy: all chars of query appear in order in str
+  let si = 0;
+  for (let c of query) {
+    const idx = str.indexOf(c, si);
+    if (idx === -1) return 0;
+    si = idx + 1;
+  }
+  return 40;
+}
+
+function highlightMatch(text, query) {
+  if (!query) return text;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return text.slice(0, idx) + `<span class="match-highlight">${text.slice(idx, idx + query.length)}</span>` + text.slice(idx + query.length);
+}
+
+function handleSearch(val) {
+  selectedProduct = val;
+  const list = document.getElementById('autocomplete-list');
+  if (!val || val.length < 2) { list.style.display = 'none'; return; }
+
+  const results = PRODUCT_DB
+    .map(p => ({ ...p, score: fuzzyMatch(val, p.name) }))
+    .filter(p => p.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+
+  if (results.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = results.map(p =>
+    `<div class="autocomplete-item" onclick="selectProduct('${p.name.replace(/'/g, "\\'")}')">
+      <span>${p.emoji}</span>
+      <div>
+        <div style="font-size:14px;">${highlightMatch(p.name, val)}</div>
+        <div style="font-size:11px; color: var(--gray-400);">${p.category}</div>
+      </div>
+    </div>`
+  ).join('');
+  list.style.display = 'block';
+}
+
+function selectProduct(name) {
+  document.getElementById('product-search').value = name;
+  selectedProduct = name;
+  document.getElementById('autocomplete-list').style.display = 'none';
+}
+
+// Close autocomplete on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('autocomplete-list').style.display = 'none';
+  }
+});
+
+// ═══════════════════════════
+// QUANTITY
+// ═══════════════════════════
+function adjustQty(delta) {
+  qty = Math.max(1, Math.min(5, qty + delta));
+  document.getElementById('qty-display').textContent = qty;
+}
+
+// ═══════════════════════════
+// PHONE STORAGE
+// ═══════════════════════════
+function savePhone(val) {
+  if (val.length >= 10) {
+    localStorage.setItem('supersale_phone', val);
+    document.getElementById('phone-hint').style.display = 'block';
+  }
+}
+
+// ═══════════════════════════
+// SUBMIT REQUEST
+// ═══════════════════════════
+function submitRequest() {
+  const product = document.getElementById('product-search').value.trim();
+  const phone = document.getElementById('phone-input').value.trim();
+
+  if (!product) { alert('Please enter a product name.'); return; }
+  if (!phone || phone.length < 10) { alert('Please enter a valid phone number.'); return; }
+
+  const { requests } = getState();
+  requests.push({
+    id: Date.now(),
+    product,
+    qty,
+    phone,
+    storeId,
+    timestamp: Date.now(),
+    restocked: false
+  });
+  saveRequests(requests);
+
+  // Reset form
+  document.getElementById('product-search').value = '';
+  qty = 1;
+  document.getElementById('qty-display').textContent = '1';
+  selectedProduct = '';
+
+  // Show success
+  const toast = document.getElementById('request-success');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+
+  renderDashboard();
+}
+
+// ═══════════════════════════
+// ADMIN UPLOAD
+// ═══════════════════════════
+let uploadedPhotoData = null;
+
+function handleCameraPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedPhotoData = e.target.result;
+    const zone = document.getElementById('camera-zone');
+    document.getElementById('camera-placeholder').style.display = 'none';
+    const img = document.createElement('img');
+    img.src = uploadedPhotoData;
+    zone.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateSavingsPreview() {
+  const sale = parseFloat(document.getElementById('admin-sale-price').value);
+  const orig = parseFloat(document.getElementById('admin-orig-price').value);
+  const prev = document.getElementById('savings-preview');
+  if (sale && orig && orig > sale) {
+    const save = (orig - sale).toFixed(2);
+    const pct = Math.round(((orig - sale) / orig) * 100);
+    prev.textContent = `✅ Customers save ₱${save} (${pct}% off)`;
+    prev.classList.add('show');
+  } else {
+    prev.classList.remove('show');
+  }
+}
+
+function publishDeal() {
+  const name = document.getElementById('admin-product-name').value.trim();
+  const category = document.getElementById('admin-category').value.trim() || 'General';
+  const sale = parseFloat(document.getElementById('admin-sale-price').value);
+  const orig = parseFloat(document.getElementById('admin-orig-price').value);
+
+  if (!name) { alert('Please enter a product name.'); return; }
+  if (!sale || !orig) { alert('Please enter both prices.'); return; }
+  if (sale >= orig) { alert('Sale price must be lower than original price.'); return; }
+
+  const { deals } = getState();
+  const product = PRODUCT_DB.find(p => p.name.toLowerCase() === name.toLowerCase());
+
+  deals.push({
+    id: Date.now(),
+    name,
+    category,
+    emoji: product ? product.emoji : '🛒',
+    salePrice: sale,
+    origPrice: orig,
+    storeId,
+    timestamp: Date.now(),
+    img: uploadedPhotoData
+  });
+  saveDeals(deals);
+
+  // Reset
+  document.getElementById('admin-product-name').value = '';
+  document.getElementById('admin-category').value = '';
+  document.getElementById('admin-sale-price').value = '';
+  document.getElementById('admin-orig-price').value = '';
+  uploadedPhotoData = null;
+  const zone = document.getElementById('camera-zone');
+  const img = zone.querySelector('img');
+  if (img) img.remove();
+  document.getElementById('camera-placeholder').style.display = 'flex';
+  document.getElementById('savings-preview').classList.remove('show');
+  document.getElementById('camera-input').value = '';
+
+  alert('✅ Deal published to the feed!');
+  switchView('feed');
+}
+
+// ═══════════════════════════
+// DASHBOARD
+// ═══════════════════════════
+function renderDashboard() {
+  const { requests } = getState();
+  const storeRequests = requests.filter(r => r.storeId === storeId);
+
+  // Stats
+  const totalReqs = storeRequests.length;
+  const uniqueItems = [...new Set(storeRequests.map(r => r.product))].length;
+  const pending = storeRequests.filter(r => !r.restocked).length;
+
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-box"><div class="stat-num">${totalReqs}</div><div class="stat-label">Total Requests</div></div>
+    <div class="stat-box"><div class="stat-num">${uniqueItems}</div><div class="stat-label">Unique Items</div></div>
+    <div class="stat-box"><div class="stat-num">${pending}</div><div class="stat-label">Pending</div></div>
+  `;
+
+  // Group by product
+  const grouped = {};
+  storeRequests.forEach(r => {
+    if (!grouped[r.product]) grouped[r.product] = { product: r.product, count: 0, qty: 0, phones: [], restocked: r.restocked };
+    grouped[r.product].count++;
+    grouped[r.product].qty += r.qty;
+    grouped[r.product].phones.push(r.phone);
+    if (r.restocked) grouped[r.product].restocked = true;
+  });
+
+  const sorted = Object.values(grouped).sort((a, b) => b.count - a.count);
+  const maxCount = sorted[0]?.count || 1;
+
+  // Hot alert
+  if (sorted[0] && sorted[0].count >= 3) {
+    document.getElementById('hot-alert').style.display = 'block';
+    document.getElementById('hot-alert-text').textContent = `"${sorted[0].product}" has ${sorted[0].count} requests. Consider prioritizing this restock.`;
+  }
+
+  document.getElementById('demand-list').innerHTML = sorted.map((item, i) => {
+    const pct = Math.round((item.count / maxCount) * 100);
+    const isRestocked = item.restocked;
+    const isTop = i < 3;
+
+    return `
+      <div class="demand-card">
+        <div class="demand-rank ${isTop ? 'top' : ''}">${i + 1}</div>
+        <div class="demand-info">
+          <div class="demand-name">${item.product}</div>
+          <div class="demand-meta">${item.count} request${item.count !== 1 ? 's' : ''} · ${item.qty} units needed</div>
+          <div class="heatbar"><div class="heatbar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="demand-count">${item.count}<span>requests</span></div>
+          ${isRestocked
+            ? `<div class="restocked-badge">✅ Done</div>`
+            : `<button class="restock-btn" onclick="openRestockSheet('${item.product.replace(/'/g, "\\'")}')">Restock</button>`
+          }
+        </div>
+      </div>`;
+  }).join('') || '<div style="text-align:center;padding:40px;color:var(--gray-400);">No requests yet.</div>';
+}
+
+// ═══════════════════════════
+// RESTOCK NOTIFICATION SHEET
+// ═══════════════════════════
+let activeRestockProduct = null;
+
+function openRestockSheet(product) {
+  activeRestockProduct = product;
+  const { requests } = getState();
+  const phones = [...new Set(requests.filter(r => r.product === product && r.storeId === storeId).map(r => r.phone))];
+
+  document.getElementById('notif-title').textContent = `Restock: ${product}`;
+  document.getElementById('notif-body').textContent = `This will mark "${product}" as restocked and send an SMS notification to ${phones.length} customer${phones.length !== 1 ? 's' : ''} who requested it.`;
+  document.getElementById('notif-phones').innerHTML = phones.map(p => `📱 ${p}`).join('<br>');
+  document.getElementById('notif-overlay').classList.add('show');
+}
+
+function closeNotifSheet(e) {
+  if (e && e.target !== document.getElementById('notif-overlay')) return;
+  document.getElementById('notif-overlay').classList.remove('show');
+  activeRestockProduct = null;
+}
+
+function sendNotifications() {
+  if (!activeRestockProduct) return;
+  const { requests } = getState();
+  requests.forEach(r => {
+    if (r.product === activeRestockProduct && r.storeId === storeId) {
+      r.restocked = true;
+    }
+  });
+  saveRequests(requests);
+  document.getElementById('notif-overlay').classList.remove('show');
+  alert(`✅ Marked as restocked! SMS notifications sent to all requesters of "${activeRestockProduct}".`);
+  renderDashboard();
+  activeRestockProduct = null;
+}
+</script>
+</body>
+</html>
