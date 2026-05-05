@@ -405,7 +405,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
 
 const params  = new URLSearchParams(location.search);
-const storeId = params.get('store_id') || 'SM-IMUS-001';
+const storeId = params.get('store_id') || 'grocery-001';
 const STORES  = {
   'SM-IMUS-001':   'SM Hypermarket\nImus, Cavite',
   'SM-CAVITE-02':  'SM Savemore\nBacoor, Cavite',
