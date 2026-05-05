@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routing...</title>
+    <title>Nearest Store Routing...</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,64 +20,162 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 450px;
         }
         .status {
             font-size: 1.1rem;
             color: #555;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
-        .location-indicator {
-            font-size: 1.5rem;
+        .btn {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
             font-weight: bold;
-            color: #0056b3;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #004494;
         }
     </style>
 </head>
 <body>
 
     <div class="message-box">
-        <div class="status" id="status-text">Detecting your location...</div>
-        <div class="location-indicator" id="location-display"></div>
+        <div class="status" id="status-text">Click below to share your location so we can find the store nearest to you.</div>
+        <button class="btn" id="locate-btn" onclick="requestLocation()">Share Location</button>
     </div>
 
     <script>
-        // Fetch location data based on the user's IP address
-        fetch('https://ipapi.co/json/')
-            .then(response => response.json())
-            .then(data => {
-                // Get the city and region, with fallbacks just in case
-                const city = data.city ? data.city : 'Unknown City';
-                const region = data.region ? data.region : 'Unknown Region';
-                
-                // Display the detected location on the screen
-                document.getElementById('status-text').innerText = 'Location detected! Redirecting...';
-                document.getElementById('location-display').innerText = city + ', ' + region;
-                
-                // Convert city name to lowercase to make the check easier
-                const cityLower = city.toLowerCase();
-                
-                // Wait 2 seconds (2000 milliseconds) so the user can read the indicator, then redirect
-                setTimeout(() => {
-                    if (cityLower.includes('paranaque') || cityLower.includes('paranaque')) {
-                        // Redirect to location1.html for Las Piñas users
-                        window.location.replace('location1.html');
-                    } else {
-                        // Redirect to location2.html for everyone else
-                        window.location.replace('location2.html');
-                    }
-                }, 2000); 
-            })
-            .catch(error => {
-                console.error('Error fetching location data:', error);
-                
-                // Update text if the API is blocked or fails
-                document.getElementById('status-text').innerText = 'Unable to detect location. Redirecting to default...';
-                
-                // Wait 2 seconds, then fallback to location2.html
-                setTimeout(() => {
-                    window.location.replace('location2.html');
-                }, 2000);
+        // --- YOUR TARGET LOCATIONS DATABASE ---
+        const targetLocations = [
+            { 
+                name: "Robinsons Easymart Naga", 
+                lat: 14.465482372866171, 
+                lng: 120.98684404373586, 
+                url: "robinsons-naga.html" 
+            },
+            { 
+                name: "Puregold Pulang Lupa", 
+                lat: 14.464376829596882, 
+                lng: 120.98698267723344, 
+                url: "puregold-pulanglupa.html" 
+            },
+            { 
+                name: "Waltermart WMall", 
+                lat: 14.532388811116048, 
+                lng: 120.98911611073612, 
+                url: "waltermart-wmall.html" 
+            },
+            { 
+                name: "Robinsons Easymart BF Homes Paranaque", 
+                lat: 14.457281871829354, 
+                lng: 121.00810738327255, 
+                url: "robinsons-bf.html" 
+            },
+            { 
+                name: "Robinsons Supermarket Arvo", 
+                lat: 14.359311960677529, 
+                lng: 120.98180979801519, 
+                url: "robinsons-arvo.html" 
+            }
+        ];
+
+        function requestLocation() {
+            const statusText = document.getElementById('status-text');
+            const btn = document.getElementById('locate-btn');
+            
+            btn.style.display = 'none';
+            statusText.innerText = "Requesting GPS permissions...";
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                statusText.innerText = "Geolocation is not supported by your browser.";
+                fallbackRedirect();
+            }
+        }
+
+        function successCallback(position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            document.getElementById('status-text').innerText = "Location found! Finding the nearest store...";
+
+            let closestStore = null;
+            let shortestDistance = Infinity;
+
+            // Loop through all locations to find the absolute closest one
+            targetLocations.forEach(store => {
+                const distance = calculateDistance(userLat, userLng, store.lat, store.lng);
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    closestStore = store;
+                }
             });
+
+            // Convert distance from meters to kilometers for a cleaner display
+            const distanceInKm = (shortestDistance / 1000).toFixed(1);
+
+            // Always route to the closest store, no matter the distance
+            setTimeout(() => {
+                document.getElementById('status-text').innerHTML = `Your nearest store is <strong>${closestStore.name}</strong> (${distanceInKm} km away).<br><br>Redirecting...`;
+                
+                // Wait 2.5 seconds so they can read the message, then redirect
+                setTimeout(() => window.location.replace(closestStore.url), 2500);
+            }, 1000);
+        }
+
+        function errorCallback(error) {
+            const statusText = document.getElementById('status-text');
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    statusText.innerText = "Location access denied. Redirecting to default page...";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    statusText.innerText = "Location information is unavailable. Redirecting...";
+                    break;
+                case error.TIMEOUT:
+                    statusText.innerText = "The request timed out. Redirecting...";
+                    break;
+                default:
+                    statusText.innerText = "An unknown error occurred. Redirecting...";
+                    break;
+            }
+            fallbackRedirect();
+        }
+
+        function fallbackRedirect() {
+            setTimeout(() => {
+                // The page users go to if they deny GPS permissions
+                window.location.replace('location2.html'); 
+            }, 2500);
+        }
+
+        // --- MATH FUNCTION TO CALCULATE DISTANCE (Haversine Formula) ---
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth's radius in meters
+            const p1 = lat1 * Math.PI/180;
+            const p2 = lat2 * Math.PI/180;
+            const deltaP = (lat2-lat1) * Math.PI/180;
+            const deltaLon = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(deltaP/2) * Math.sin(deltaP/2) +
+                      Math.cos(p1) * Math.cos(p2) *
+                      Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; 
+        }
     </script>
 
 </body>
