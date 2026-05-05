@@ -26,6 +26,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px
 .hero-title{font-size:28px;font-weight:800;color:var(--ink);line-height:1.15;letter-spacing:-.5px;margin-bottom:8px}
 .hero-title span{color:var(--green)}
 .hero-sub{font-size:14px;color:var(--mid);line-height:1.6;font-weight:500;margin-bottom:20px;max-width:300px}
+.hero-btn{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:15px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 12px rgba(26,107,53,.25);transition:transform .1s,background .12s;margin-bottom:16px;letter-spacing:-.1px}
+.hero-btn:active{transform:scale(.97);background:var(--green-dark)}
 .hero-trust{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mid);font-weight:600}
 .card{background:var(--white);margin-bottom:10px}
 .card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--border)}
@@ -69,15 +71,17 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px
 .step-icon{width:36px;height:36px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:8px;border:2px solid var(--green-border);position:relative;z-index:1}
 .step-label{font-size:11px;font-weight:700;color:var(--ink);line-height:1.3}
 .step-sub{font-size:10px;color:var(--faint);font-weight:500;margin-top:2px;line-height:1.3}
-.footer-bar{background:var(--green-dark);padding:20px;text-align:center;margin-bottom:90px}
+.footer-bar{background:var(--green-dark);padding:20px;text-align:center;margin-bottom:80px}
 .footer-bar p{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
 .center-row{display:flex;align-items:center;justify-content:center;gap:8px;padding:28px;color:var(--faint);font-size:13px;font-weight:500}
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-row{padding:28px 20px;text-align:center;color:var(--faint);font-size:13px;font-weight:500;line-height:1.6}
-.fab-wrap{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:12px 20px 28px;background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:55}
-.fab{width:100%;background:var(--green);color:white;border:none;border-radius:14px;padding:16px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(26,107,53,.3);transition:transform .1s,background .12s;letter-spacing:-.1px}
-.fab:active{transform:scale(.97);background:var(--green-dark)}
+.fab-wrap{display:none}
+.sticky-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:10px 20px 24px;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s}
+.sticky-bar.visible{opacity:1;pointer-events:all}
+.sticky-btn{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:14px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(26,107,53,.28);transition:transform .1s,background .12s;letter-spacing:-.1px}
+.sticky-btn:active{transform:scale(.97);background:var(--green-dark)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:70;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
 .overlay.open{opacity:1;pointer-events:all}
 .sheet{background:var(--white);border-radius:20px 20px 0 0;width:100%;max-width:430px;margin:0 auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);max-height:90dvh;overflow-y:auto}
@@ -133,6 +137,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px
   <div class="hero-eyebrow"><div class="hero-dot"></div> Store feedback</div>
   <div class="hero-title">Can't find it?<br><span>Let us know.</span></div>
   <div class="hero-sub">Request items that are out of stock or not available in this store. Help us serve you better!</div>
+  <button class="hero-btn" onclick="openSheet()">+ Request a Missing Item</button>
   <div class="hero-trust">🛡 Quick. Easy. Helps your store.</div>
 </div>
 
@@ -164,8 +169,8 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px
 
 <div class="footer-bar"><p>Thank you for helping us build a better store for everyone. 💚</p></div>
 
-<div class="fab-wrap">
-  <button class="fab" onclick="openSheet()">+ Request a Missing Item</button>
+<div class="sticky-bar" id="sticky-bar">
+  <button class="sticky-btn" onclick="openSheet()">+ Request a Missing Item</button>
 </div>
 
 <div class="overlay" id="overlay" onclick="bgClose(event)">
@@ -232,29 +237,127 @@ const SUPABASE_URL='https://ltnippijthgijpunmjas.supabase.co';
 const SUPABASE_KEY='sb_publishable_NIFlBk7lucwZr3QzsOIg9Q_FB8HOy_8';
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
+
+// ── URL PARAMS ── 
+// Supports both ?store_id=X and ?store=X for flexibility
 const params=new URLSearchParams(location.search);
-const storeId=params.get('store_id')||'grocery-001';
-const STORES={'grocery-001':'Grocery','SM-IMUS-001':'SM Hypermarket Imus','SM-CAVITE-02':'SM Savemore Bacoor','PUREGOLD-IMUS':'Puregold Imus','ROBINSONS-CIV':'Robinsons Dasmariñas'};
+const storeId=params.get('store_id')||params.get('store')||'grocery-001';
+const STORES={'grocery-001':'Grocery','SM-IMUS-001':'SM Hypermarket Imus','SM-CAVITE-02':'SM Savemore Bacoor','PUREGOLD-IMUS':'Puregold Imus','ROBINSONS-CIV':'Robinsons Dasmariñas','sm-sucat':'SM Sucat','sm-bicutan':'SM Bicutan','sm-molino':'SM Molino'};
 document.getElementById('nav-store').textContent=STORES[storeId]||storeId;
+
+// ── GPS (silent, optional) ──
+// Ask for location silently — no UI shown to user.
+// If granted: saves rough coords with every request for heatmap analytics.
+// If denied: app works exactly the same, just no GPS data saved.
+let userCoords = null; // { lat, lng }
+
+function requestLocationSilently() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      // Round to ~100m precision — enough for area clustering, not precise tracking
+      userCoords = {
+        lat: Math.round(pos.coords.latitude  * 1000) / 1000,
+        lng: Math.round(pos.coords.longitude * 1000) / 1000,
+      };
+    },
+    () => { /* denied or unavailable — silently ignored */ },
+    { timeout: 8000, maximumAge: 300000 } // cache for 5 min, timeout after 8s
+  );
+}
+
 let allDeals=[],activeCat='All',picked=null;
-document.addEventListener('DOMContentLoaded',()=>{loadDeals();loadRequests();sb.channel('live').on('postgres_changes',{event:'INSERT',schema:'public',table:'restock_requests',filter:`store_id=eq.${storeId}`},loadRequests).on('postgres_changes',{event:'INSERT',schema:'public',table:'deals',filter:`store_id=eq.${storeId}`},loadDeals).subscribe();});
+
+// ── STICKY BUTTON OBSERVER ──
+const heroBtn=document.querySelector('.hero-btn');
+const stickyBar=document.getElementById('sticky-bar');
+const observer=new IntersectionObserver(([entry])=>{
+  stickyBar.classList.toggle('visible',!entry.isIntersecting);
+},{threshold:0});
+observer.observe(heroBtn);
+
+document.addEventListener('DOMContentLoaded',()=>{
+  requestLocationSilently(); // silent GPS — non-blocking
+  loadDeals();
+  loadRequests();
+  sb.channel('live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'restock_requests',filter:`store_id=eq.${storeId}`},loadRequests)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'deals',filter:`store_id=eq.${storeId}`},loadDeals)
+    .subscribe();
+});
+
+// ── DEALS ──
 async function loadDeals(){const{data}=await sb.from('deals').select('*').eq('store_id',storeId).eq('published',true).order('created_at',{ascending:false});allDeals=data||[];renderDeals();buildChips();}
 function buildChips(){const cats=['All',...new Set(allDeals.map(d=>d.category))];document.getElementById('chips').innerHTML=cats.map(c=>`<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('');}
 function setCat(c){activeCat=c;buildChips();renderDeals();}
 function renderDeals(){const f=activeCat==='All'?allDeals:allDeals.filter(d=>d.category===activeCat);document.getElementById('deals-badge').textContent=f.length+' deals';const el=document.getElementById('deals-list');if(!f.length){el.innerHTML='<div class="empty-row">No deals posted yet. Check back soon!</div>';return;}el.innerHTML=f.map(d=>{const pct=Math.round(((d.orig_price-d.sale_price)/d.orig_price)*100);const thumb=d.photo_url?`<img src="${d.photo_url}" loading="lazy">`:(d.emoji||'🛒');return`<div class="deal-item"><div class="deal-thumb">${thumb}</div><div class="deal-info"><div class="deal-name">${d.name}</div><div class="deal-sub">${d.category}${d.aisle?' · Aisle '+d.aisle:''}</div><div class="deal-prices"><span class="deal-sale">₱${Number(d.sale_price).toFixed(0)}</span><span class="deal-orig">₱${Number(d.orig_price).toFixed(0)}</span><span class="deal-save">−${pct}%</span></div></div></div>`;}).join('');}
+
+// ── REQUESTS ──
 async function loadRequests(){const{data}=await sb.from('restock_requests').select('product_name,category,emoji').eq('store_id',storeId).eq('restocked',false).order('created_at',{ascending:false});const map={};for(const r of(data||[])){const k=r.product_name.toLowerCase();if(!map[k])map[k]={name:r.product_name,emoji:r.emoji||'🛒',category:r.category||'General',count:0};map[k].count++;}const items=Object.values(map).sort((a,b)=>b.count-a.count);document.getElementById('req-badge').textContent=items.length+' items';const el=document.getElementById('req-list');if(!items.length){el.innerHTML='<div class="empty-row">No requests yet.<br>Tap the button below to be the first!</div>';return;}el.innerHTML=items.map((item,i)=>{const done=sessionStorage.getItem(`mt-${item.name}`);const isTop=i<3;return`<div class="req-item"><div class="req-num ${isTop?'':'dim'}">${i+1}</div><div class="req-emoji">${item.emoji}</div><div class="req-info"><div class="req-name">${item.name}</div><div class="req-cat">${item.category}</div></div><div class="req-right"><div class="req-count">${item.count}</div><div class="req-label">requests</div><button class="metoo ${done?'done':''}" onclick="meToo(event,'${item.name.replace(/'/g,"\\'")}','${item.emoji}','${item.category}')" ${done?'disabled':''}>${done?'✓ Added':'+1 Me too'}</button></div></div>`;}).join('');}
-async function meToo(e,name,emoji,category){const btn=e.currentTarget;btn.disabled=true;btn.textContent='…';const{error}=await sb.from('restock_requests').insert({store_id:storeId,product_name:name,emoji,category,quantity:1,phone:'anonymous'});if(!error){sessionStorage.setItem(`mt-${name}`,'1');await loadRequests();}else{btn.disabled=false;btn.textContent='+1 Me too';}}
+
+// Me Too also saves GPS if available
+async function meToo(e,name,emoji,category){
+  const btn=e.currentTarget;btn.disabled=true;btn.textContent='…';
+  const payload={store_id:storeId,product_name:name,emoji,category,quantity:1,phone:'anonymous'};
+  if(userCoords){payload.lat=userCoords.lat;payload.lng=userCoords.lng;}
+  const{error}=await sb.from('restock_requests').insert(payload);
+  if(!error){sessionStorage.setItem(`mt-${name}`,'1');await loadRequests();}
+  else{btn.disabled=false;btn.textContent='+1 Me too';}
+}
+
+// ── SHEET ──
 function openSheet(){document.getElementById('overlay').classList.add('open');}
 function closeSheet(){document.getElementById('overlay').classList.remove('open');}
 function bgClose(e){if(e.target===document.getElementById('overlay'))closeSheet();}
 function resetSheet(){['item-input','brand-input','details-input'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-submit').disabled=true;document.getElementById('sh-ok').classList.remove('show');document.getElementById('form-view').style.display='';document.getElementById('ac-drop').classList.remove('show');picked=null;}
+
+// ── AUTOCOMPLETE ──
 const PRODUCTS=[{n:'Lucky Me Pancit Canton',e:'🍜',c:'Noodles'},{n:'Lucky Me Chicken Flavor',e:'🍜',c:'Noodles'},{n:'Super Q Golden Bihon',e:'🍜',c:'Noodles'},{n:'Payless Pancit Canton',e:'🍜',c:'Noodles'},{n:'Mami King Noodles',e:'🍜',c:'Noodles'},{n:'Datu Puti Vinegar',e:'🍶',c:'Condiments'},{n:'Datu Puti Soy Sauce',e:'🍶',c:'Condiments'},{n:'Silver Swan Soy Sauce',e:'🍶',c:'Condiments'},{n:'UFC Banana Catsup',e:'🍅',c:'Condiments'},{n:'Jufran Banana Sauce',e:'🍅',c:'Condiments'},{n:'Knorr Liquid Seasoning',e:'🫙',c:'Condiments'},{n:'Century Tuna',e:'🐟',c:'Canned Goods'},{n:'Spam Classic',e:'🥫',c:'Canned Goods'},{n:'Argentina Corned Beef',e:'🥩',c:'Canned Goods'},{n:'CDO Corned Beef',e:'🥩',c:'Canned Goods'},{n:'Delimondo Corned Beef',e:'🥩',c:'Canned Goods'},{n:'Mega Sardines',e:'🐟',c:'Canned Goods'},{n:'Del Monte Tomato Sauce',e:'🍅',c:'Canned Goods'},{n:'Milo 3-in-1',e:'🥤',c:'Beverages'},{n:'Kopiko Brown Coffee',e:'☕',c:'Beverages'},{n:'Nescafe Classic',e:'☕',c:'Beverages'},{n:'C2 Green Tea',e:'🍵',c:'Beverages'},{n:'Cobra Energy Drink',e:'⚡',c:'Beverages'},{n:'Mountain Dew',e:'🧃',c:'Beverages'},{n:'Royal Tru-Orange',e:'🧃',c:'Beverages'},{n:'Del Monte Pineapple Juice',e:'🍹',c:'Beverages'},{n:'Bear Brand Milk',e:'🥛',c:'Dairy'},{n:'Alaska Evaporated Milk',e:'🥛',c:'Dairy'},{n:'Eden Cheese',e:'🧀',c:'Dairy'},{n:'Quickmelt Cheese',e:'🧀',c:'Dairy'},{n:'Magnolia Butter',e:'🧈',c:'Dairy'},{n:'Nestle All Purpose Cream',e:'🥛',c:'Dairy'},{n:'Skyflakes Crackers',e:'🍘',c:'Snacks'},{n:'Piattos Chips',e:'🥔',c:'Snacks'},{n:'Clover Chips',e:'🥨',c:'Snacks'},{n:'Nova Country Cheddar',e:'🌽',c:'Snacks'},{n:'Oishi Prawn Crackers',e:'🦐',c:'Snacks'},{n:'Jack n Jill Potato Chips',e:'🥔',c:'Snacks'},{n:'Rebisco Crackers',e:'🍪',c:'Snacks'},{n:'Ariel Laundry Powder',e:'🧺',c:'Laundry'},{n:'Champion Detergent',e:'🧺',c:'Laundry'},{n:'Tide Liquid Detergent',e:'🧴',c:'Laundry'},{n:'Downy Fabric Conditioner',e:'🌸',c:'Laundry'},{n:'Zonrox Bleach',e:'🫧',c:'Laundry'},{n:'Safeguard Soap',e:'🧼',c:'Personal Care'},{n:'Palmolive Shampoo',e:'🧴',c:'Personal Care'},{n:'Head & Shoulders',e:'🧴',c:'Personal Care'},{n:'Colgate Total',e:'🦷',c:'Personal Care'},{n:'Minola Coconut Oil',e:'🥥',c:'Cooking'},{n:'Golden Fiesta Palm Oil',e:'🫙',c:'Cooking'},{n:'Knorr Beef Cubes',e:'🧊',c:'Cooking'},{n:'Mama Sita Sinigang Mix',e:'🌿',c:'Cooking'},{n:'Dinorado Rice 5kg',e:'🌾',c:'Grains'},{n:'Sinandomeng Rice 5kg',e:'🌾',c:'Grains'},{n:'White King Rice 5kg',e:'🌾',c:'Grains'},{n:'Quaker Oats',e:'🥣',c:'Grains'}];
 function fuzzy(q,s){q=q.toLowerCase().replace(/\s+/g,'');s=s.toLowerCase();if(s.includes(q))return 100;if(s.split(' ').some(w=>w.startsWith(q)))return 80;let si=0;for(const c of q){const i=s.indexOf(c,si);if(i===-1)return 0;si=i+1;}return 40;}
 function hi(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase());if(i===-1)return t;return t.slice(0,i)+`<span class="hi">${t.slice(i,i+q.length)}</span>`+t.slice(i+q.length);}
 function onType(val){picked=null;document.getElementById('f-submit').disabled=val.trim().length<2;const drop=document.getElementById('ac-drop');if(!val||val.length<2){drop.classList.remove('show');return;}const res=PRODUCTS.map(p=>({...p,score:fuzzy(val,p.n)})).filter(p=>p.score>0).sort((a,b)=>b.score-a.score).slice(0,7);if(!res.length){drop.classList.remove('show');return;}drop.innerHTML=res.map(p=>`<div class="ac-item" onclick="pick('${p.n.replace(/'/g,"\\'")}','${p.e}','${p.c}')"><span class="ac-e">${p.e}</span><div><div class="ac-n">${hi(p.n,val)}</div><div class="ac-c">${p.c}</div></div></div>`).join('');drop.classList.add('show');}
 function pick(name,emoji,category){document.getElementById('item-input').value=name;document.getElementById('ac-drop').classList.remove('show');document.getElementById('f-submit').disabled=false;picked={name,emoji,category};}
 document.addEventListener('click',e=>{if(!e.target.closest('.f-wrap'))document.getElementById('ac-drop').classList.remove('show');});
-async function doSubmit(){const raw=document.getElementById('item-input').value.trim();const brand=document.getElementById('brand-input').value.trim();const details=document.getElementById('details-input').value.trim();const name=picked?.name||raw;if(!name)return;const match=picked||PRODUCTS.find(p=>p.n.toLowerCase()===name.toLowerCase());const emoji=match?.e||'🛒';const category=match?.c||'General';const fullName=brand?`${name} (${brand}${details?' – '+details:''})`:(details?`${name} – ${details}`:name);const btn=document.getElementById('f-submit');btn.disabled=true;btn.textContent='Submitting…';const{error}=await sb.from('restock_requests').insert({store_id:storeId,product_name:fullName,emoji,category,quantity:1,phone:'anonymous'});btn.textContent='Submit Request';if(error){btn.disabled=false;alert(`Error: ${error.message}`);return;}sessionStorage.setItem(`mt-${fullName}`,'1');document.getElementById('rep-name').textContent=name;document.getElementById('form-view').style.display='none';document.getElementById('sh-ok').classList.add('show');await loadRequests();}
+
+// ── SUBMIT — includes GPS if available ──
+async function doSubmit(){
+  const raw=document.getElementById('item-input').value.trim();
+  const brand=document.getElementById('brand-input').value.trim();
+  const details=document.getElementById('details-input').value.trim();
+  const name=picked?.name||raw;
+  if(!name)return;
+  const match=picked||PRODUCTS.find(p=>p.n.toLowerCase()===name.toLowerCase());
+  const emoji=match?.e||'🛒';
+  const category=match?.c||'General';
+  const fullName=brand?`${name} (${brand}${details?' – '+details:''})`:(details?`${name} – ${details}`:name);
+
+  const btn=document.getElementById('f-submit');
+  btn.disabled=true;btn.textContent='Submitting…';
+
+  // Build payload — GPS is optional
+  const payload={
+    store_id:   storeId,
+    product_name: fullName,
+    emoji,
+    category,
+    quantity:   1,
+    phone:      'anonymous',
+  };
+  if(userCoords){
+    payload.lat = userCoords.lat;
+    payload.lng = userCoords.lng;
+  }
+
+  const{error}=await sb.from('restock_requests').insert(payload);
+  btn.textContent='Submit Request';
+  if(error){btn.disabled=false;alert(`Error: ${error.message}`);return;}
+
+  sessionStorage.setItem(`mt-${fullName}`,'1');
+  document.getElementById('rep-name').textContent=name;
+  document.getElementById('form-view').style.display='none';
+  document.getElementById('sh-ok').classList.add('show');
+  await loadRequests();
+}
 </script>
 </body>
 </html>
