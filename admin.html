@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Supersale Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --green:       #1A6B35;
+  --green-dark:  #124D26;
+  --green-light: #EAF4EE;
+  --green-border:#B8DBBF;
+  --ink:         #111827;
+  --mid:         #4B5563;
+  --faint:       #9CA3AF;
+  --border:      #E5E7EB;
+  --bg:          #F3F4F6;
+  --white:       #FFFFFF;
+  --red:         #DC2626;
+  --red-light:   #FEF2F2;
+  --orange:      #D97706;
+  --orange-light:#FEF3C7;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  background: var(--green);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.nav-icon { font-size: 20px; }
+.nav-title { font-size: 16px; font-weight: 800; color: white; letter-spacing: -0.2px; }
+.nav-sub { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 500; }
+.nav-store-sel {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  outline: none;
+  cursor: pointer;
+  max-width: 130px;
+}
+.nav-store-sel option { color: var(--ink); background: white; }
+
+/* ── FORM CARD ── */
+.form-card {
+  background: var(--white);
+  margin: 12px 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.card-section {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.card-section:last-child { border-bottom: none; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── PHOTO UPLOAD ── */
+.photo-zone {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  transition: border-color 0.15s, background 0.15s;
+}
+.photo-zone:active { border-color: var(--green); background: var(--green-light); }
+.photo-zone.has-photo { border-style: solid; border-color: var(--green-border); }
+
+.photo-zone img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-zone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--faint);
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.photo-zone.has-photo .photo-zone-inner { display: none; }
+
+.photo-icon { font-size: 36px; }
+.photo-label { font-size: 14px; font-weight: 600; }
+.photo-sub { font-size: 12px; font-weight: 400; }
+
+/* retake button overlay */
+.retake-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 2;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+}
+.photo-zone.has-photo .retake-btn { display: block; }
+
+#photo-input { display: none; }
+
+/* ── FIELDS ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.opt-tag {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--faint);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.field-input, .field-select {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+.field-input::placeholder { color: var(--faint); font-weight: 400; }
+.field-input:focus, .field-select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(26,107,53,0.1);
+}
+
+/* price row */
+.price-row { display: flex; gap: 12px; }
+.price-row .price-field { flex: 1; }
+.price-input-wrap { position: relative; }
+.price-input-wrap::before {
+  content: '₱';
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mid);
+  pointer-events: none;
+}
+.price-input-wrap .field-input { padding-left: 28px; }
+
+/* savings preview */
+.savings-preview {
+  background: var(--green-light);
+  border: 1px solid var(--green-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+.savings-preview.show { display: flex; }
+.savings-label { font-size: 13px; font-weight: 600; color: var(--green-dark); }
+.savings-value { font-size: 16px; font-weight: 800; color: var(--green); }
+
+/* aisle row */
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* ── RECENT POSTS ── */
+.recent-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.recent-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.recent-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-light);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.recent-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+.recent-card {
+  background: var(--white);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  position: relative;
+}
+.recent-thumb {
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.recent-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.recent-info { flex: 1; min-width: 0; }
+.recent-name { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.recent-cat { font-size: 10px; color: var(--faint); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.recent-prices { text-align: right; flex-shrink: 0; }
+.recent-sale { font-size: 16px; font-weight: 800; color: var(--green); display: block; line-height: 1; margin-bottom: 2px; }
+.recent-orig { font-size: 11px; color: var(--faint); text-decoration: line-through; }
+.recent-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--orange-light);
+  color: var(--orange);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+.delete-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--faint);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.1s;
+}
+.delete-btn:hover { color: var(--red); }
+
+.empty-recent {
+  text-align: center;
+  padding: 24px;
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--white);
+  border-radius: 12px;
+}
+
+/* ── SUBMIT ── */
+.submit-wrap { padding: 0 16px 32px; }
+.submit-btn {
+  width: 100%;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.submit-btn:active { transform: scale(0.98); background: var(--green-dark); }
+.submit-btn:disabled { background: var(--border); color: var(--faint); cursor: not-allowed; transform: none; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink);
+  color: white;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--green); }
+.toast.error { background: var(--red); }
+
+/* ── UPLOADING STATE ── */
+.uploading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border-radius: 12px;
+  flex-direction: column;
+  gap: 8px;
+}
+.uploading-overlay.show { display: flex; }
+.upload-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.upload-label { font-size: 12px; font-weight: 600; color: var(--mid); }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <span class="nav-icon">📸</span>
+    <div>
+      <div class="nav-title">Admin Upload</div>
+      <div class="nav-sub">Supersale.ph</div>
+    </div>
+  </div>
+  <select class="nav-store-sel" id="store-sel" onchange="onStoreChange()">
+    <option value="grocery-001">Grocery</option>
+    <option value="SM-IMUS-001">SM Imus</option>
+    <option value="SM-CAVITE-02">SM Bacoor</option>
+    <option value="PUREGOLD-IMUS">Puregold Imus</option>
+    <option value="ROBINSONS-CIV">Robinsons Dasmariñas</option>
+    <option value="sm-sucat">SM Sucat</option>
+    <option value="sm-bicutan">SM Bicutan</option>
+    <option value="sm-molino">SM Molino</option>
+  </select>
+</nav>
+
+<!-- PHOTO -->
+<div class="form-card" style="margin-top:16px">
+  <div class="card-section">
+    <div class="section-label">📷 Product Photo <span class="opt-tag">(optional)</span></div>
+    <div class="photo-zone" id="photo-zone" onclick="triggerCamera()">
+      <div class="photo-zone-inner">
+        <div class="photo-icon">📷</div>
+        <div class="photo-label">Take a photo</div>
+        <div class="photo-sub">or tap to choose from gallery</div>
+      </div>
+      <div class="uploading-overlay" id="upload-overlay">
+        <div class="upload-spinner"></div>
+        <div class="upload-label">Uploading…</div>
+      </div>
+      <button class="retake-btn" onclick="retakePhoto(event)">🔄 Retake</button>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+  </div>
+</div>
+
+<!-- PRODUCT DETAILS -->
+<div class="form-card">
+  <div class="card-section">
+    <div class="section-label">📦 Product Details</div>
+
+    <div class="field">
+      <div class="field-label">Product Name <span class="opt-tag">optional</span></div>
+      <input class="field-input" type="text" id="prod-name" placeholder="E.g. Lucky Me Pancit Canton">
+    </div>
+
+    <div class="field">
+      <div class="field-label">Category <span class="opt-tag">optional</span></div>
+      <div class="select-wrap">
+        <select class="field-select" id="prod-category">
+          <option value="">— Select category —</option>
+          <optgroup label="🏷️ Promo Types">
+            <option value="Discount">💸 Discount</option>
+            <option value="Buy 1 Take 1">2️⃣ Buy 1 Take 1</option>
+            <option value="Get Freebie">🎁 Get Freebie</option>
+          </optgroup>
+          <optgroup label="🛒 Product Categories">
+            <option value="Noodles">🍜 Noodles</option>
+            <option value="Canned Goods">🐟 Canned Goods</option>
+            <option value="Beverages">🥤 Beverages</option>
+            <option value="Dairy">🥛 Dairy</option>
+            <option value="Snacks">🍘 Snacks</option>
+            <option value="Condiments">🍶 Condiments</option>
+            <option value="Personal Care">🧴 Personal Care</option>
+            <option value="Laundry">🧺 Laundry</option>
+            <option value="Cooking">🥥 Cooking</option>
+            <option value="Grains">🌾 Grains</option>
+            <option value="General">🛒 General</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="form-card">
+  <div class="card-section">
+    <div class="section-label">💰 Pricing <span class="opt-tag">(both optional)</span></div>
+
+    <div class="price-row">
+      <div class="price-field">
+        <div class="field-label">Sale Price</div>
+        <div class="price-input-wrap">
+          <input class="field-input" type="number" id="sale-price" placeholder="0.00" step="0.01" oninput="updateSavings()">
+        </div>
+      </div>
+      <div class="price-field">
+        <div class="field-label">Original Price</div>
+        <div class="price-input-wrap">
+          <input class="field-input" type="number" id="orig-price" placeholder="0.00" step="0.01" oninput="updateSavings()">
+        </div>
+      </div>
+    </div>
+
+    <div class="savings-preview" id="savings-preview">
+      <span class="savings-label" id="savings-label">Customers save</span>
+      <span class="savings-value" id="savings-value"></span>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT -->
+<div class="submit-wrap">
+  <button class="submit-btn" id="submit-btn" onclick="publishDeal()">
+    🚀 Publish Deal
+  </button>
+</div>
+
+<!-- RECENT POSTS -->
+<div style="margin: 0 0 16px">
+  <div class="recent-header">
+    <div class="recent-title">Recently Published</div>
+    <div class="recent-count" id="recent-count">0 deals</div>
+  </div>
+  <div class="recent-list" id="recent-list">
+    <div class="empty-recent">No deals published yet.</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://ltnippijthgijpunmjas.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NIFlBk7lucwZr3QzsOIg9Q_FB8HOy_8';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+
+const CATEGORY_EMOJI = {
+  'Discount':'💸','Buy 1 Take 1':'2️⃣','Get Freebie':'🎁',
+  'Noodles':'🍜','Canned Goods':'🐟','Beverages':'🥤','Dairy':'🥛',
+  'Snacks':'🍘','Condiments':'🍶','Personal Care':'🧴','Laundry':'🧺',
+  'Cooking':'🥥','Grains':'🌾','General':'🛒',
+};
+
+// ── STORE ──
+let storeId = 'grocery-001';
+function onStoreChange() {
+  storeId = document.getElementById('store-sel').value;
+  loadRecent();
+}
+
+// ── PHOTO ──
+let photoFile = null;
+let photoUrl  = null;
+
+function triggerCamera() {
+  document.getElementById('photo-input').click();
+}
+
+function retakePhoto(e) {
+  e.stopPropagation();
+  photoFile = null;
+  photoUrl  = null;
+  const zone = document.getElementById('photo-zone');
+  const img  = zone.querySelector('img');
+  if (img) img.remove();
+  zone.classList.remove('has-photo');
+  document.getElementById('photo-input').value = '';
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  photoFile = file;
+
+  // Show preview immediately
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const zone = document.getElementById('photo-zone');
+    const existing = zone.querySelector('img');
+    if (existing) existing.remove();
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    zone.insertBefore(img, zone.querySelector('.uploading-overlay'));
+    zone.classList.add('has-photo');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── SAVINGS PREVIEW ──
+function updateSavings() {
+  const sale = parseFloat(document.getElementById('sale-price').value);
+  const orig = parseFloat(document.getElementById('orig-price').value);
+  const el   = document.getElementById('savings-preview');
+
+  if (sale > 0 && orig > 0 && orig > sale) {
+    const save = (orig - sale).toFixed(2);
+    const pct  = Math.round(((orig - sale) / orig) * 100);
+    document.getElementById('savings-value').textContent = `₱${save} (${pct}% off)`;
+    el.classList.add('show');
+  } else {
+    el.classList.remove('show');
+  }
+}
+
+// ── PUBLISH ──
+async function publishDeal() {
+  const name     = document.getElementById('prod-name').value.trim();
+  const category = document.getElementById('prod-category').value;
+  const sale     = parseFloat(document.getElementById('sale-price').value) || null;
+  const orig     = parseFloat(document.getElementById('orig-price').value) || null;
+
+  // Need at least one piece of info
+  if (!name && !photoFile && !sale) {
+    showToast('Add at least a name, photo, or price', 'error');
+    return;
+  }
+  // If both prices given, sale must be lower
+  if (sale && orig && sale >= orig) {
+    showToast('Sale price must be lower than original', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Publishing…';
+
+  // Upload photo to Supabase Storage if provided
+  if (photoFile) {
+    const overlay = document.getElementById('upload-overlay');
+    overlay.classList.add('show');
+    const ext  = photoFile.name.split('.').pop() || 'jpg';
+    const path = `${storeId}/${Date.now()}.${ext}`;
+    const { data: upData, error: upErr } = await sb.storage
+      .from('shelf-photos')
+      .upload(path, photoFile, { cacheControl: '3600', upsert: false });
+
+    overlay.classList.remove('show');
+
+    if (upErr) {
+      // If bucket doesn't exist yet, still publish without photo
+      console.warn('Photo upload failed:', upErr.message);
+      showToast('Photo upload failed — publishing without image', 'error');
+    } else {
+      const { data: urlData } = sb.storage.from('shelf-photos').getPublicUrl(upData.path);
+      photoUrl = urlData?.publicUrl || null;
+    }
+  }
+
+  const emoji = CATEGORY_EMOJI[category] || '🛒';
+
+  const payload = {
+    store_id:   storeId,
+    name:       name || 'Unnamed Product',
+    category:   category || 'General',
+    emoji,
+    sale_price: sale || 0,
+    orig_price: orig || 0,
+    photo_url:  photoUrl,
+    published:  true,
+  };
+
+  const { error } = await sb.from('deals').insert(payload);
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Publish Deal';
+
+  if (error) {
+    showToast(`Error: ${error.message}`, 'error');
+    return;
+  }
+
+  showToast('✅ Deal published!', 'success');
+  resetForm();
+  loadRecent();
+}
+
+function resetForm() {
+  document.getElementById('prod-name').value     = '';
+  document.getElementById('prod-category').value = '';
+  document.getElementById('sale-price').value    = '';
+  document.getElementById('orig-price').value    = '';
+  document.getElementById('savings-preview').classList.remove('show');
+  document.getElementById('photo-input').value   = '';
+  const zone = document.getElementById('photo-zone');
+  const img  = zone.querySelector('img');
+  if (img) img.remove();
+  zone.classList.remove('has-photo');
+  photoFile = null;
+  photoUrl  = null;
+}
+
+// ── RECENT DEALS ──
+async function loadRecent() {
+  const { data } = await sb.from('deals')
+    .select('*')
+    .eq('store_id', storeId)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const list = document.getElementById('recent-list');
+  document.getElementById('recent-count').textContent = (data?.length || 0) + ' deals';
+
+  if (!data?.length) {
+    list.innerHTML = '<div class="empty-recent">No deals published yet for this store.</div>';
+    return;
+  }
+
+  list.innerHTML = data.map(d => {
+    const pct   = (d.orig_price > 0 && d.sale_price > 0)
+      ? Math.round(((d.orig_price - d.sale_price) / d.orig_price) * 100)
+      : null;
+    const thumb = d.photo_url
+      ? `<img src="${d.photo_url}" loading="lazy">`
+      : (d.emoji || '🛒');
+    const prices = (d.sale_price > 0)
+      ? `<span class="recent-sale">₱${Number(d.sale_price).toFixed(0)}</span>
+         ${d.orig_price > 0 ? `<span class="recent-orig">₱${Number(d.orig_price).toFixed(0)}</span>` : ''}`
+      : `<span style="font-size:11px;color:var(--faint)">No price</span>`;
+
+    return `<div class="recent-card">
+      <div class="recent-thumb">${thumb}</div>
+      <div class="recent-info">
+        <div class="recent-name">${d.name}</div>
+        <div class="recent-cat">${d.category}</div>
+      </div>
+      <div class="recent-prices">${prices}</div>
+      ${pct ? `<div class="recent-badge">−${pct}%</div>` : ''}
+      <button class="delete-btn" onclick="deleteDeal(${d.id}, this)" title="Delete">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+async function deleteDeal(id, btn) {
+  if (!confirm('Delete this deal?')) return;
+  btn.textContent = '…';
+  const { error } = await sb.from('deals').delete().eq('id', id);
+  if (!error) {
+    showToast('Deal deleted', 'success');
+    loadRecent();
+  } else {
+    btn.textContent = '🗑';
+    showToast('Delete failed', 'error');
+  }
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', loadRecent);
+</script>
+</body>
+</html>
