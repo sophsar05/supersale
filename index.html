@@ -1,454 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
-<title>Supersale.ph</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*, *::before, *::after {
-  box-sizing: border-box; margin: 0; padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-:root {
-  --teal:      #1A6B5A;
-  --teal-dark: #144F42;
-  --teal-light:#E8F4F1;
-  --ink:       #1A1A1A;
-  --mid:       #555555;
-  --faint:     #9CA3AF;
-  --border:    #E5E7EB;
-  --off:       #F9FAFB;
-  --white:     #FFFFFF;
-  --red:       #E8272A;
-  --red-light: #FFF0F0;
-}
-
-html, body { height: 100%; background: var(--off); }
-
-body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: var(--ink);
-  min-height: 100dvh;
-  width: 100%; 
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  -webkit-font-smoothing: antialiased;
-}
-
-.app-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: var(--white);
-  box-shadow: 0 0 40px rgba(0,0,0,0.03);
-  position: relative;
-}
-
-/* ── NAV (TOP BAR) ── */
-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-.nav-logo {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-.nav-logo span { color: var(--teal); }
-.nav-store { font-size: 11px; color: var(--faint); font-weight: 600; text-align: right; line-height: 1.4; }
-
-/* ── BOTTOM NAV (MOBILE) ── */
-.tabs-wrap {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border);
-  padding-bottom: env(safe-area-inset-bottom); /* iPhone safe area */
-  z-index: 100;
-}
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  max-width: 500px;
-  margin: 0 auto;
-}
-.tab-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  padding: 12px 0 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--faint);
-  cursor: pointer;
-  flex: 1;
-  transition: all 0.2s;
-}
-.tab-icon { font-size: 20px; margin-bottom: 2px; filter: grayscale(1) opacity(0.5); transition: 0.2s;}
-.tab-btn.active { color: var(--teal); }
-.tab-btn.active .tab-icon { filter: none; transform: scale(1.1); }
-
-/* ── VIEWS ── */
-.view {
-  display: none;
-  flex: 1;
-  animation: fadeUp 0.3s ease both;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Prevent bottom nav overlap */
-}
-.view.active { display: block; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── HERO ── */
-.hero { padding: 32px 20px 24px; }
-.hero-title { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 12px; }
-.hero-title span { color: var(--teal); font-style: italic; }
-.hero-sub { font-size: 15px; color: var(--mid); line-height: 1.5; }
-
-/* ── FORMS ── */
-.form-section { padding: 0 20px 40px; }
-.form-label { font-size: 11px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: block; }
-.input-wrap { position: relative; margin-bottom: 16px; }
-.prod-input {
-  width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
-  padding: 16px; font-family: 'Inter', sans-serif; font-size: 16px;
-  outline: none; transition: 0.15s; background: var(--off);
-}
-.prod-input:focus { border-color: var(--teal); background: var(--white); box-shadow: 0 4px 12px rgba(26,107,90,0.08); }
-.submit-btn {
-  width: 100%; background: var(--teal); color: white; border: none;
-  border-radius: 12px; padding: 16px 20px; font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: 0.15s;
-}
-.submit-btn:disabled { background: var(--border); color: var(--faint); cursor: not-allowed; }
-
-/* autocomplete */
-.ac-drop {
-  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 12px; z-index: 50; max-height: 240px; overflow-y: auto;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.1); display: none;
-}
-.ac-drop.show { display: block; }
-.ac-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid var(--off); }
-.ac-emoji { font-size: 20px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--off); border-radius: 10px; }
-.ac-info { flex: 1; min-width: 0; }
-.ac-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ac-name .hi { color: var(--teal); font-weight: 700; }
-.ac-cat { font-size: 12px; color: var(--faint); margin-top: 2px;}
-
-/* ── COMMUNITY LIST ── */
-.req-list { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 12px; }
-.req-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
-.req-left { display: flex; align-items: center; gap: 14px; }
-.req-left .ac-emoji { width: 44px; height: 44px; font-size: 22px; border-radius: 12px; }
-.req-details h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.req-count { font-size: 12px; color: var(--faint); }
-.req-count strong { color: var(--teal); font-weight: 700; }
-.plus-btn { background: var(--teal-light); color: var(--teal-dark); border: none; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.1s; }
-.plus-btn:hover { background: #C5DFD9; }
-.plus-btn.clicked { background: var(--off); color: var(--faint); pointer-events: none; }
-
-/* ── DEALS FEED (SMOKE SCREEN) ── */
-.deals-feed { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 16px; }
-.deal-card { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; align-items: center; padding: 16px; gap: 16px; background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
-.deal-img { width: 80px; height: 80px; background: var(--off); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-.deal-info { flex: 1; }
-.deal-brand { font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600;}
-.deal-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.3;}
-.deal-price { display: flex; align-items: center; gap: 8px; }
-.price-new { font-size: 18px; font-weight: 700; color: var(--red); }
-.price-old { font-size: 13px; color: var(--faint); text-decoration: line-through; }
-.deal-badge { background: var(--red-light); color: var(--red); padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-
-/* ── DESKTOP RESPONSIVE RULES ── */
-@media (min-width: 768px) {
-  nav { padding: 20px 32px; }
-  
-  /* Move tabs back to the top on Desktop */
-  .tabs-wrap { position: sticky; top: 73px; border-top: none; border-bottom: 1px solid var(--border); padding-bottom: 0; z-index: 10; background: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-  .tabs { justify-content: center; gap: 40px; max-width: none; }
-  .tab-btn { flex-direction: row; font-size: 14px; padding: 16px 0; border-bottom: 2px solid transparent; border-radius: 0;}
-  .tab-icon { margin-bottom: 0; margin-right: 8px; font-size: 18px; }
-  .tab-btn.active { border-bottom-color: var(--teal); }
-  
-  .view { padding-bottom: 40px; }
-  .hero { text-align: center; padding: 60px 24px 40px; }
-  .hero-sub { margin: 0 auto; }
-  
-  .form-section { max-width: 500px; margin: 0 auto; }
-  .req-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 900px; margin: 0 auto;}
-  .deals-feed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px; margin: 0 auto;}
-  .deal-card { flex-direction: column; text-align: center; align-items: center; padding: 24px; }
-  .deal-img { width: 140px; height: 140px; font-size: 60px; margin-bottom: 16px; }
-  .deal-price { justify-content: center; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearest Store Routing...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+        .message-box {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 450px;
+        }
+        .status {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .btn {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #004494;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-  <nav>
-    <div class="nav-logo">supersale<span>.</span></div>
-    <div class="nav-store" id="store-tag">Loading…</div>
-  </nav>
-
-  <div class="tabs-wrap">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('request', this)">
-        <span class="tab-icon">📝</span>
-        <span>Request</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('community', this)">
-        <span class="tab-icon">👥</span>
-        <span>Community</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('deals', this)">
-        <span class="tab-icon">🏷️</span>
-        <span>Live Deals</span>
-      </button>
+    <div class="message-box">
+        <div class="status" id="status-text">Click below to share your location so we can find the store nearest to you.</div>
+        <button class="btn" id="locate-btn" onclick="requestLocation()">Share Location</button>
     </div>
-  </div>
 
-  <div id="view-request" class="view active">
-    <div class="hero">
-      <div class="hero-title">Can't find what<br>you're looking for? <span>Tell us.</span></div>
-      <div class="hero-sub">Report any missing product and the store will be notified to restock it.</div>
-    </div>
-    <div class="form-section">
-      <label class="form-label">Product name</label>
-      <div class="input-wrap">
-        <input class="prod-input" type="text" id="prod-input" placeholder="e.g. Spam Classic, Milo..." oninput="onType(this.value)" autocomplete="off">
-        <div class="ac-drop" id="ac-drop"></div>
-      </div>
-      <button class="submit-btn" id="submit-btn" onclick="doSubmit()" disabled>Submit report →</button>
-    </div>
-  </div>
+    <script>
+        // --- YOUR TARGET LOCATIONS DATABASE ---
+        const targetLocations = [
+            { 
+                name: "Robinsons Easymart Naga", 
+                lat: 14.465482372866171, 
+                lng: 120.98684404373586, 
+                url: "robinsons-naga.html" 
+            },
+            { 
+                name: "Puregold Pulang Lupa", 
+                lat: 14.464376829596882, 
+                lng: 120.98698267723344, 
+                url: "puregold-pulanglupa.html" 
+            },
+            { 
+                name: "Waltermart WMall", 
+                lat: 14.532388811116048, 
+                lng: 120.98911611073612, 
+                url: "waltermart-wmall.html" 
+            },
+            { 
+                name: "Robinsons Easymart BF Homes Paranaque", 
+                lat: 14.457281871829354, 
+                lng: 121.00810738327255, 
+                url: "robinsons-bf.html" 
+            },
+            { 
+                name: "Robinsons Supermarket Arvo", 
+                lat: 14.359311960677529, 
+                lng: 120.98180979801519, 
+                url: "robinsons-arvo.html" 
+            }
+        ];
 
-  <div id="view-community" class="view">
-    <div class="hero">
-      <div class="hero-title">Most <span>Requested</span></div>
-      <div class="hero-sub">Tap "+1" if you're also looking for these items. It helps the store prioritize!</div>
-    </div>
-    <div class="req-list" id="community-list">
-      <div style="text-align:center; padding: 40px; color: var(--faint); font-size: 14px;">Loading community requests...</div>
-    </div>
-  </div>
+        function requestLocation() {
+            const statusText = document.getElementById('status-text');
+            const btn = document.getElementById('locate-btn');
+            
+            btn.style.display = 'none';
+            statusText.innerText = "Requesting GPS permissions...";
 
-  <div id="view-deals" class="view">
-    <div class="hero">
-      <div class="hero-title">Today's <span>Discounts</span></div>
-      <div class="hero-sub">Flash sales available right now at this location.</div>
-    </div>
-    <div class="deals-feed">
-      <div class="deal-card">
-        <div class="deal-img">🥩</div>
-        <div class="deal-info">
-          <div class="deal-brand">Purefoods</div>
-          <div class="deal-name">Corned Beef 380g</div>
-          <div class="deal-price">
-            <span class="price-new">₱185</span>
-            <span class="price-old">₱215</span>
-            <span class="deal-badge">-14%</span>
-          </div>
-        </div>
-      </div>
-      <div class="deal-card">
-        <div class="deal-img">🧴</div>
-        <div class="deal-info">
-          <div class="deal-brand">Head & Shoulders</div>
-          <div class="deal-name">Cool Menthol 300ml</div>
-          <div class="deal-price">
-            <span class="price-new">₱199</span>
-            <span class="price-old">₱250</span>
-            <span class="deal-badge">-20%</span>
-          </div>
-        </div>
-      </div>
-      <div class="deal-card">
-        <div class="deal-img">☕</div>
-        <div class="deal-info">
-          <div class="deal-brand">Nescafe</div>
-          <div class="deal-name">Classic Refill 200g</div>
-          <div class="deal-price">
-            <span class="price-new">₱155</span>
-            <span class="price-old">₱175</span>
-            <span class="deal-badge">-11%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                statusText.innerText = "Geolocation is not supported by your browser.";
+                fallbackRedirect();
+            }
+        }
 
-</div>
+        function successCallback(position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
 
-<script>
-// --- SUPABASE & INIT ---
-const SUPABASE_URL = 'https://ltnippijthgijpunmjas.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_NIFlBk7lucwZr3QzsOIg9Q_FB8HOy_8';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+            document.getElementById('status-text').innerText = "Location found! Finding the nearest store...";
 
-const params  = new URLSearchParams(location.search);
-const storeId = params.get('store_id') || 'grocery-001';
-const STORES  = {
-  'SM-IMUS-001':   'SM Hypermarket\nImus',
-  'SM-CAVITE-02':  'SM Savemore\nBacoor',
-  'PUREGOLD-IMUS': 'Puregold\nImus',
-  'ROBINSONS-CIV': 'Robinsons\nDasmariñas',
-};
-document.getElementById('store-tag').innerText = STORES[storeId] || storeId;
+            let closestStore = null;
+            let shortestDistance = Infinity;
 
-// --- TAB LOGIC ---
-function switchTab(viewId, btnElement) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  btnElement.classList.add('active');
-  document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-  document.getElementById('view-' + viewId).classList.add('active');
-  window.scrollTo(0, 0); // Scroll to top on tab switch
-  
-  if(viewId === 'community') loadCommunity();
-}
+            // Loop through all locations to find the absolute closest one
+            targetLocations.forEach(store => {
+                const distance = calculateDistance(userLat, userLng, store.lat, store.lng);
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    closestStore = store;
+                }
+            });
 
-// --- COMMUNITY FEED LOGIC ---
-async function loadCommunity() {
-  const listEl = document.getElementById('community-list');
-  const { data, error } = await sb
-    .from('restock_requests')
-    .select('*')
-    .eq('store_id', storeId)
-    .eq('restocked', false);
-    
-  if (error || !data.length) {
-    listEl.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--faint);">No requests yet. Be the first to ask!</div>`;
-    return;
-  }
+            // Convert distance from meters to kilometers for a cleaner display
+            const distanceInKm = (shortestDistance / 1000).toFixed(1);
 
-  const grouped = {};
-  data.forEach(req => {
-    const key = req.product_name;
-    if(!grouped[key]) {
-      grouped[key] = { id: req.id, name: key, emoji: req.emoji, count: 0 };
-    }
-    grouped[key].count += (req.quantity || 1); 
-  });
+            // Always route to the closest store, no matter the distance
+            setTimeout(() => {
+                document.getElementById('status-text').innerHTML = `Your nearest store is <strong>${closestStore.name}</strong> (${distanceInKm} km away).<br><br>Redirecting...`;
+                
+                // Wait 2.5 seconds so they can read the message, then redirect
+                setTimeout(() => window.location.replace(closestStore.url), 2500);
+            }, 1000);
+        }
 
-  const sorted = Object.values(grouped).sort((a,b) => b.count - a.count);
+        function errorCallback(error) {
+            const statusText = document.getElementById('status-text');
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    statusText.innerText = "Location access denied. Redirecting to default page...";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    statusText.innerText = "Location information is unavailable. Redirecting...";
+                    break;
+                case error.TIMEOUT:
+                    statusText.innerText = "The request timed out. Redirecting...";
+                    break;
+                default:
+                    statusText.innerText = "An unknown error occurred. Redirecting...";
+                    break;
+            }
+            fallbackRedirect();
+        }
 
-  listEl.innerHTML = sorted.map(item => `
-    <div class="req-card">
-      <div class="req-left">
-        <div class="ac-emoji">${item.emoji || '🛒'}</div>
-        <div class="req-details">
-          <h4>${item.name}</h4>
-          <div class="req-count"><strong id="count-${item.id}">${item.count}</strong> requests</div>
-        </div>
-      </div>
-      <button class="plus-btn" id="btn-${item.id}" onclick="addPlusOne('${item.id}', ${item.count})">+1</button>
-    </div>
-  `).join('');
-}
+        function fallbackRedirect() {
+            setTimeout(() => {
+                // The page users go to if they deny GPS permissions
+                window.location.replace('location2.html'); 
+            }, 2500);
+        }
 
-async function addPlusOne(id, currentCount) {
-  const btn = document.getElementById(`btn-${id}`);
-  const countEl = document.getElementById(`count-${id}`);
-  btn.classList.add('clicked');
-  btn.textContent = 'Added ✓';
-  countEl.textContent = currentCount + 1;
-  await sb.from('restock_requests').update({ quantity: currentCount + 1 }).eq('id', id);
-}
+        // --- MATH FUNCTION TO CALCULATE DISTANCE (Haversine Formula) ---
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth's radius in meters
+            const p1 = lat1 * Math.PI/180;
+            const p2 = lat2 * Math.PI/180;
+            const deltaP = (lat2-lat1) * Math.PI/180;
+            const deltaLon = (lon2-lon1) * Math.PI/180;
 
-// --- FORM AUTOCOMPLETE LOGIC ---
-const PRODUCTS = [
-  {n:'Lucky Me Pancit Canton',e:'🍜',c:'Noodles'}, {n:'Datu Puti Vinegar',e:'🍶',c:'Condiments'},
-  {n:'Century Tuna',e:'🐟',c:'Canned Goods'}, {n:'Spam Classic',e:'🥫',c:'Canned Goods'},
-  {n:'Milo 3-in-1',e:'🥤',c:'Beverages'}, {n:'Bear Brand Milk',e:'🥛',c:'Dairy'},
-  {n:'Ariel Laundry Powder',e:'🧺',c:'Laundry'}, {n:'Safeguard Soap',e:'🧼',c:'Personal Care'},
-  {n:'Piattos Chips',e:'🥔',c:'Snacks'}, {n:'C2 Green Tea',e:'🍵',c:'Beverages'}
-];
+            const a = Math.sin(deltaP/2) * Math.sin(deltaP/2) +
+                      Math.cos(p1) * Math.cos(p2) *
+                      Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-let picked = null;
-function fuzzy(q, s) {
-  q = q.toLowerCase().replace(/\s+/g,''); s = s.toLowerCase();
-  if (s.includes(q)) return 100; return 0;
-}
-function hi(text, q) {
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i === -1) return text;
-  return text.slice(0,i) + `<span class="hi">${text.slice(i,i+q.length)}</span>` + text.slice(i+q.length);
-}
+            return R * c; 
+        }
+    </script>
 
-function onType(val) {
-  picked = null;
-  document.getElementById('submit-btn').disabled = val.trim().length < 2;
-  const drop = document.getElementById('ac-drop');
-  if (!val || val.length < 2) { drop.classList.remove('show'); return; }
-  const res = PRODUCTS.map(p => ({...p, score: fuzzy(val, p.n)})).filter(p => p.score > 0).slice(0, 5);
-  if (!res.length) { drop.classList.remove('show'); return; }
-  drop.innerHTML = res.map(p =>
-    `<div class="ac-item" onclick="pick('${p.n.replace(/'/g,"\\'")}','${p.e}','${p.c}')">
-      <div class="ac-emoji">${p.e}</div>
-      <div class="ac-info">
-        <div class="ac-name">${hi(p.n, val)}</div>
-        <div class="ac-cat">${p.c}</div>
-      </div>
-    </div>`
-  ).join('');
-  drop.classList.add('show');
-}
-
-function pick(name, emoji, category) {
-  document.getElementById('prod-input').value = name;
-  document.getElementById('ac-drop').classList.remove('show');
-  document.getElementById('submit-btn').disabled = false;
-  picked = { name, emoji, category };
-}
-
-async function doSubmit() {
-  const raw = document.getElementById('prod-input').value.trim();
-  const name = picked?.name || raw;
-  if (!name) return;
-  const match = picked || PRODUCTS.find(p => p.n.toLowerCase() === name.toLowerCase());
-  
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  await sb.from('restock_requests').insert({
-    store_id: storeId, product_name: name,
-    emoji: match?.e || '🛒', category: match?.c || 'General', quantity: 1, phone: 'anonymous',
-  });
-  
-  document.getElementById('prod-input').value = '';
-  btn.textContent = 'Submit report →';
-  switchTab('community', document.querySelectorAll('.tab-btn')[1]);
-}
-</script>
 </body>
 </html>
