@@ -429,7 +429,7 @@ nav {
       </div>
       <div class="uploading-overlay" id="upload-overlay">
         <div class="upload-spinner"></div>
-        <div class="upload-label">Uploading…</div>
+        <div class="upload-label">Processing…</div>
       </div>
       <button class="retake-btn" onclick="retakePhoto(event)">🔄 Retake</button>
     </div>
@@ -607,12 +607,10 @@ async function publishDeal() {
   const sale     = parseFloat(document.getElementById('sale-price').value) || null;
   const orig     = parseFloat(document.getElementById('orig-price').value) || null;
 
-  // Need at least one piece of info
   if (!name && !photoFile && !sale) {
     showToast('Add at least a name, photo, or price', 'error');
     return;
   }
-  // If both prices given, sale must be lower
   if (sale && orig && sale >= orig) {
     showToast('Sale price must be lower than original', 'error');
     return;
@@ -622,26 +620,17 @@ async function publishDeal() {
   btn.disabled = true;
   btn.textContent = 'Publishing…';
 
-  // Upload photo to Supabase Storage if provided
+  // Convert photo to compressed base64 — no Storage bucket needed
   if (photoFile) {
     const overlay = document.getElementById('upload-overlay');
     overlay.classList.add('show');
-    const ext  = photoFile.name.split('.').pop() || 'jpg';
-    const path = `${storeId}/${Date.now()}.${ext}`;
-    const { data: upData, error: upErr } = await sb.storage
-      .from('shelf-photos')
-      .upload(path, photoFile, { cacheControl: '3600', upsert: false });
-
-    overlay.classList.remove('show');
-
-    if (upErr) {
-      // If bucket doesn't exist yet, still publish without photo
-      console.warn('Photo upload failed:', upErr.message);
-      showToast('Photo upload failed — publishing without image', 'error');
-    } else {
-      const { data: urlData } = sb.storage.from('shelf-photos').getPublicUrl(upData.path);
-      photoUrl = urlData?.publicUrl || null;
+    try {
+      photoUrl = await compressAndEncode(photoFile);
+    } catch(e) {
+      console.warn('Photo encode failed:', e);
+      photoUrl = null;
     }
+    overlay.classList.remove('show');
   }
 
   const emoji = CATEGORY_EMOJI[category] || '🛒';
@@ -670,6 +659,27 @@ async function publishDeal() {
   showToast('✅ Deal published!', 'success');
   resetForm();
   loadRecent();
+}
+
+// Compress image and return base64 data URL
+function compressAndEncode(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      // Max 800px wide, good quality
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.75));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
 }
 
 function resetForm() {
