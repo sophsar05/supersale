@@ -300,7 +300,12 @@ async function meToo(e,name,emoji,category){
   const btn=e.currentTarget;btn.disabled=true;btn.textContent='…';
   const payload={store_id:storeId,product_name:name,emoji,category,quantity:1,phone:'anonymous'};
   if(userCoords){payload.lat=userCoords.lat;payload.lng=userCoords.lng;}
-  const{error}=await sb.from('restock_requests').insert(payload);
+  let{error}=await sb.from('restock_requests').insert(payload);
+  // Fallback: retry without GPS if lat/lng columns don't exist yet
+  if(error&&error.message&&error.message.includes('lat')){
+    const r=await sb.from('restock_requests').insert({store_id:storeId,product_name:name,emoji,category,quantity:1,phone:'anonymous'});
+    error=r.error;
+  }
   if(!error){sessionStorage.setItem(`mt-${name}`,'1');await loadRequests();}
   else{btn.disabled=false;btn.textContent='+1 Me too';}
 }
@@ -334,21 +339,16 @@ async function doSubmit(){
   const btn=document.getElementById('f-submit');
   btn.disabled=true;btn.textContent='Submitting…';
 
-  // Build payload — GPS is optional
-  const payload={
-    store_id:   storeId,
-    product_name: fullName,
-    emoji,
-    category,
-    quantity:   1,
-    phone:      'anonymous',
-  };
-  if(userCoords){
-    payload.lat = userCoords.lat;
-    payload.lng = userCoords.lng;
+  const payload={store_id:storeId,product_name:fullName,emoji,category,quantity:1,phone:'anonymous'};
+  if(userCoords){payload.lat=userCoords.lat;payload.lng=userCoords.lng;}
+
+  let{error}=await sb.from('restock_requests').insert(payload);
+  // Fallback: retry without GPS if lat/lng columns don't exist yet
+  if(error&&error.message&&error.message.includes('lat')){
+    const r=await sb.from('restock_requests').insert({store_id:storeId,product_name:fullName,emoji,category,quantity:1,phone:'anonymous'});
+    error=r.error;
   }
 
-  const{error}=await sb.from('restock_requests').insert(payload);
   btn.textContent='Submit Request';
   if(error){btn.disabled=false;alert(`Error: ${error.message}`);return;}
 
