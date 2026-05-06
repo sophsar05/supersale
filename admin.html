@@ -417,13 +417,13 @@ nav {
   </div>
   <select class="nav-store-sel" id="store-sel" onchange="onStoreChange()">
     <option value="grocery-001">Grocery</option>
-    <option value="SM-IMUS-001">SM Imus</option>
-    <option value="SM-CAVITE-02">SM Bacoor</option>
+    <option value="PUREGOLD-CAA">Puregold CAA</option>
     <option value="PUREGOLD-IMUS">Puregold Imus</option>
+    <option value="PUREGOLD-PULA">Puregold Pula</option>
     <option value="ROBINSONS-CIV">Robinsons Dasmariñas</option>
-    <option value="sm-sucat">SM Sucat</option>
-    <option value="sm-bicutan">SM Bicutan</option>
-    <option value="sm-molino">SM Molino</option>
+    <option value="SM-CAVITE-02">SM Savemore Bacoor</option>
+    <option value="SM-IMUS-001">SM Hypermarket Imus</option>
+    <option value="WALTERMART-NEQC">Waltermart NEQC</option>
   </select>
 </nav>
 
@@ -550,7 +550,16 @@ const CATEGORY_EMOJI = {
 };
 
 // ── STORE ──
-let storeId = 'grocery-001';
+const STORES = {
+  'grocery-001':    'Grocery',
+  'PUREGOLD-CAA':   'Puregold CAA',
+  'PUREGOLD-IMUS':  'Puregold Imus',
+  'PUREGOLD-PULA':  'Puregold Pula',
+  'ROBINSONS-CIV':  'Robinsons Dasmariñas',
+  'SM-CAVITE-02':   'SM Savemore Bacoor',
+  'SM-IMUS-001':    'SM Hypermarket Imus',
+  'WALTERMART-NEQC':'Waltermart NEQC',
+};
 function onStoreChange() {
   storeId = document.getElementById('store-sel').value;
   loadRecent();
