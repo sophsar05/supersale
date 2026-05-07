@@ -233,11 +233,6 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px
 </div>
 
 <script>
-const SUPABASE_URL='https://ltnippijthgijpunmjas.supabase.co';
-const SUPABASE_KEY='sb_publishable_NIFlBk7lucwZr3QzsOIg9Q_FB8HOy_8';
-const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
-
 // ── BRAND THEMES ──
 const BRAND_THEMES={
   'ROBINSONS':{primary:'#E31837',dark:'#BD132D',light:'#FDE8EB',border:'#F9C8D0',rgb:'227,24,55'},
@@ -254,6 +249,7 @@ const STORES={
   'ROBINSONS-NAGA':'Robinsons Naga',
   'ROBINSONS-CIV':'Robinsons Dasmariñas',
   'PUREGOLD-PULA':'Puregold Pulang Lupa',
+  'PUREGOLD-LP':'Puregold Las Piñas',
   'PUREGOLD-IMUS':'Puregold Imus',
   'WALTERMART-WMALL':'Waltermart WMall',
   'SM-IMUS-001':'SM Hypermarket Imus',
@@ -264,11 +260,9 @@ const STORES={
   'grocery-001':'Grocery',
 };
 
-// ── URL PARAMS ──
+// ── URL PARAMS + BRAND THEME (runs before Supabase so a CDN error can't block it) ──
 const params=new URLSearchParams(location.search);
 const storeId=params.get('store_id')||params.get('store')||'';
-
-// Apply brand theme before render
 const brand=storeId.split('-')[0].toUpperCase();
 const theme=BRAND_THEMES[brand]||BRAND_THEMES['ROBINSONS'];
 const root=document.documentElement;
@@ -277,6 +271,12 @@ root.style.setProperty('--primary-dark',theme.dark);
 root.style.setProperty('--primary-light',theme.light);
 root.style.setProperty('--primary-border',theme.border);
 root.style.setProperty('--primary-rgb',theme.rgb);
+
+// ── SUPABASE ──
+const SUPABASE_URL='https://ltnippijthgijpunmjas.supabase.co';
+const SUPABASE_KEY='sb_publishable_NIFlBk7lucwZr3QzsOIg9Q_FB8HOy_8';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
 
 document.getElementById('nav-store').textContent=STORES[storeId]||storeId||'Store';
 
