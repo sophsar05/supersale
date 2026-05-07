@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nearest Store Routing...</title>
     <style>
+        :root { --brand: #0056b3; --brand-dark: #004494; }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -13,6 +14,7 @@
             height: 100vh;
             background-color: #f4f4f9;
             margin: 0;
+            transition: background-color 0.4s;
         }
         .message-box {
             text-align: center;
@@ -29,7 +31,7 @@
             line-height: 1.5;
         }
         .btn {
-            background-color: #0056b3;
+            background-color: var(--brand);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -40,7 +42,7 @@
             transition: background-color 0.3s;
         }
         .btn:hover {
-            background-color: #004494;
+            background-color: var(--brand-dark);
         }
     </style>
 </head>
@@ -53,36 +55,53 @@
 
     <script>
         // --- YOUR TARGET LOCATIONS DATABASE ---
+        const BRAND_COLORS = {
+            'ROBINSONS': { brand: '#E31837', dark: '#BD132D' },
+            'PUREGOLD':  { brand: '#1A6B35', dark: '#124D26' },
+            'WALTERMART':{ brand: '#0047AB', dark: '#003585' },
+            'SM':        { brand: '#0058A3', dark: '#003D73' },
+        };
+
+        function applyBrandFromUrl(storeUrl) {
+            const match = storeUrl.match(/store_id=([^&]+)/);
+            if (!match) return;
+            const brandKey = match[1].split('-')[0].toUpperCase();
+            const colors = BRAND_COLORS[brandKey];
+            if (!colors) return;
+            document.documentElement.style.setProperty('--brand', colors.brand);
+            document.documentElement.style.setProperty('--brand-dark', colors.dark);
+        }
+
         const targetLocations = [
-            { 
-                name: "Robinsons Easymart Naga", 
-                lat: 14.465482372866171, 
-                lng: 120.98684404373586, 
-                url: "robinsons-naga.html" 
+            {
+                name: "Robinsons Easymart Naga",
+                lat: 14.465482372866171,
+                lng: 120.98684404373586,
+                url: "store.html?store_id=ROBINSONS-NAGA"
             },
-            { 
-                name: "Puregold Pulang Lupa", 
-                lat: 14.464376829596882, 
-                lng: 120.98698267723344, 
-                url: "puregold-pulanglupa.html" 
+            {
+                name: "Puregold Pulang Lupa",
+                lat: 14.464376829596882,
+                lng: 120.98698267723344,
+                url: "store.html?store_id=PUREGOLD-PULA"
             },
-            { 
-                name: "Waltermart WMall", 
-                lat: 14.532388811116048, 
-                lng: 120.98911611073612, 
-                url: "waltermart-wmall.html" 
+            {
+                name: "Waltermart WMall",
+                lat: 14.532388811116048,
+                lng: 120.98911611073612,
+                url: "store.html?store_id=WALTERMART-WMALL"
             },
-            { 
-                name: "Robinsons Easymart BF Homes Paranaque", 
-                lat: 14.457281871829354, 
-                lng: 121.00810738327255, 
-                url: "robinsons-bf.html" 
+            {
+                name: "Robinsons Easymart BF Homes Paranaque",
+                lat: 14.457281871829354,
+                lng: 121.00810738327255,
+                url: "store.html?store_id=ROBINSONS-BF"
             },
-            { 
-                name: "Robinsons Supermarket Arvo", 
-                lat: 14.359311960677529, 
-                lng: 120.98180979801519, 
-                url: "robinsons-arvo.html" 
+            {
+                name: "Robinsons Supermarket Arvo",
+                lat: 14.359311960677529,
+                lng: 120.98180979801519,
+                url: "store.html?store_id=ROBINSONS-ARVO"
             }
         ];
 
@@ -122,6 +141,8 @@
                     closestStore = store;
                 }
             });
+
+            applyBrandFromUrl(closestStore.url);
 
             // Convert distance from meters to kilometers for a cleaner display
             const distanceInKm = (shortestDistance / 1000).toFixed(1);
